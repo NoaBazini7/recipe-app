@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Recipe</title>
+</head>
+<body>
+    <h1>Click the button to get a random recipe!</h1>
+    <button onclick="fetchRecipe()">Get Recipe</button>
+    <h2 id="recipe-title"></h2>
+    <img id="recipe-image" width="300">
+    <p id="recipe-instructions"></p>
+
+    <script>
+        async function fetchRecipe() {
+            const response = await fetch("http://localhost:3000/api/random-recipe");
+            const data = await response.json();
+            console.log(data);
+            const meal = data.meals[0];
+
+            document.getElementById("recipe-title").innerText = meal.strMeal;
+            document.getElementById("recipe-image").src = meal.strMealThumb;
+            document.getElementById("recipe-instructions").innerText = meal.strInstructions;
+        }
+    </script>
+</body>
+</html>

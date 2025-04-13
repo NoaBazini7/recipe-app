@@ -1,0 +1,230 @@
+const mongoose = require("mongoose");
+const axios = require("axios");
+const Ingredient = require("../models/ingredient"); // Adjust path based on your structure
+const connectDB = require("../config/db");
+const {writeFileSync} = require("node:fs"); // Your MongoDB connection file
+require('dotenv').config({path: '../.env'});
+
+const API_KEY = process.env.USDA_API_KEY; // Ensure you have this in your .env file
+console.log("Using API Key:", API_KEY); // Just to check if it loads
+
+
+
+// API KEYS
+const MEALDB_API = "https://www.themealdb.com/api/json/v1/1/list.php?i=list";
+const USDA_API = "https://api.nal.usda.gov/fdc/v1/foods/search";
+
+function normalizePlural(ingredientName) {
+    let normalized = ingredientName.toLowerCase().trim();
+
+    const irregularPlurals = {
+        "tomatoes": "tomato",
+        "bananas": "banana",
+        "carrots": "carrot",
+        "apples": "apple",
+        "potatoes": "potato",
+        "peppers": "pepper",
+        "breads": "bread",
+        "grapes": "grape",
+        "cherries": "cherry",
+        "leaves": "leaf",
+        "cranberries": "cranberry",
+    };
+
+    // Split the name into words
+    const words = normalized.split(" ");
+    const lastWord = words[words.length - 1];
+
+    if (irregularPlurals[lastWord]) {
+        words[words.length - 1] = irregularPlurals[lastWord];
+    } else if (lastWord.endsWith("s") && lastWord.length > 2) {
+        words[words.length - 1] = lastWord.slice(0, -1);
+    }
+
+    return words.join(" ");
+}
+
+async function fetchAndSaveIngredients() {
+    await connectDB(); // Connect to MongoDB
+
+    try {
+        // Step 1: Fetch all ingredients from TheMealDB
+        const mealDbResponse = await axios.get(MEALDB_API);
+        const ingredients = mealDbResponse.data.meals.map(i => ({
+            name: i.strIngredient,
+            category: i.strType,
+            kosher: true, // Placeholder, adjust as needed
+        }));
+        console.log(`✅ Found ${ingredients.length} ingredients from TheMealDB.`);
+
+        await Ingredient.deleteMany({});
+        console.log("Existing ingredients deleted!");
+
+        const ingredientMap = {
+            "beef fillet": "beef tenderloin",
+            "bicarbonate of soda": "baking soda",
+            "biryani masala": "BIRYANI MASALA NATURAL SPICES",
+            "black treacle": "molasses",
+            "bramley apple": "apples",
+            "cajun": "cajun seasoning",
+            "canned tomato": "canned cooked tomatoes",
+            "caster sugar": "superfine sugar",
+            "charlotte potato": "potato",
+            "chestnut mushroom": "Agaricus bisporus",
+            "chicken leg": "chicken leg drumstick",
+            "chilled butter": "butter",
+            "chilli": "chili raw",
+            "cinnamon stick": "cinnamon sticks",
+            "coco sugar": "coconut sugar",
+            "cold water": "water",
+            "cucumber": "cucumber raw",
+            "cumin": "ground cumin",
+            "double cream": "heavy cream",
+            "egg plant": "eggplant raw",
+            "egg yolk": "egg yolk raw",
+            "english mustard": "mustard",
+            "flaked almond": "almonds nfs",
+            "flax egg": "flax seeds",
+            "floury potato": "potatoes raw",
+            "free- range egg": "egg raw",
+            "full fat yogurt": "yogurt",
+            "garlic clove": "garlic raw",
+            "ginger cordial": "BELVOIR FRUIT FARMS, GINGER CORDIAL",
+            "golden syrup": "molasses",
+            "ground almond": "almonds NFS",
+            "hard taco shell": "taco shells",
+            "hotsauce": "hot sauce",
+            "king prawn": "prawns",
+            "lamb mince": "lamb ground",
+            "lean minced beef": "lean ground beef",
+            "lime": "lime raw",
+            "meringue nest": "meringue",
+            "nutmeg": "nutmeg ground",
+            "orange zest": "orange peel",
+            "pecorino": "pecorino romano",
+            "plain chocolate": "chocolate",
+            "plum tomato": "organic plum tomatoes",
+            "raw king prawn": "prawns",
+            "red chilli flake": "red chili flakes",
+            "red pepper flake": "spices red pepper",
+            "rocket": "arugula",
+            "small potato": "potato raw",
+            "soya milk": "soya beverage",
+            "squash": "squash raw",
+            "sultana": "sultana grapes",
+            "vanilla": "vanilla beans",
+            "veal": "veal chop",
+            "vine leaf": "grape leaves raw",
+            "icing sugar": "white sugar powdered",
+            "fideo": "cut fideo",
+            "fromage frais": "fromage blanc",
+            "minced beef": "beef ground",
+            "turkey mince": "turkey ground",
+            "sweetcorn": "sweet corn",
+            "courgette": "Zucchini",
+            "wild mushroom": "mushrooms raw",
+            "truffle oil": "TRUFFLE GHEE OIL",
+            "roasted vegetable": "Raw vegetable, NFS",
+            "mixed grain": "grains",
+            "cabbage": "cabbage raw",
+            "swede": "Rutabaga",
+            "oyster": "oysters raw",
+            "stout": "beer higher alcohol",
+            "mixed peel": "orange peel",
+            "redcurrant": "red currant raw",
+            "hazlenut": "hazelnuts raw",
+            "red food colouring": "food color red",
+            "pink food colouring": "food color red",
+            "blue food colouring": "food color red",
+            "yellow food colouring": "food color red",
+            "black pudding": "blood sausage",
+            "white flour": "white wheat flour",
+            "glace cherry": "maraschino cherries",
+            "treacle": "molasses",
+            "bouquet garni": "BOUQUET OF HERBS",
+            "single cream": "cream",
+            "red wine jelly": "LAMBRUSCO WINE JELLY",
+            "tiger prawn": "Penaeus monodon",
+            "minced pork": "pork ground",
+            "doubanjiang": "FERMENTED BEAN SAUCE WITH CHILI",
+            "wonton skin": "Wonton wrappers",
+            "starch": "corn starch",
+            "wood ear mushroom": "cloud ear mushroom",
+            "almond milk": "almond milk nfs",
+            "almond extract": "pure almond extract",
+            "candied peel": "orange peel",
+            "grand marnier": "liqueur",
+            "mixed spice": "mixed spices",
+            "mincemeat": "meat ground",
+            "boiling water": "water",
+            "sushi rice": "sushi rice sushi",
+            "beetroot": "beets raw"
+        };
+
+
+        for (let i = 0; i < ingredients.length; i++) {
+            const ingredient = ingredients[i];
+
+            const searchName = ingredientMap[ingredient.name.toLowerCase()] || ingredient.name;
+
+            console.log(`🔍 Searching USDA for: ${searchName} (${i + 1}/${ingredients.length})`);
+
+            try {
+                // Step 2: Search USDA API
+                const usdaResponse = await axios.get(USDA_API, {
+                    params: {
+                        api_key: API_KEY,
+                        query: searchName,
+                        pageSize: 1
+                    }
+                });
+
+                if (!usdaResponse.data.foods || usdaResponse.data.foods.length === 0) {
+                    console.log(`❌ No match found for ${searchName}`);
+                    continue;
+                }
+
+                // Step 3: Extract category & calories
+                const usdaData = usdaResponse.data.foods[0]; // Best match
+                const category = ingredient.category ? ingredient.category : usdaData.foodCategory||"Unknown";
+                const calories = usdaData.foodNutrients?.find(n => (n.nutrientName.includes("Energy"))&&n.unitName==="KCAL")?.value || 0;
+
+                if(ingredient.name==="Bicarbonate Of Soda"){
+                    ingredient.name="baking soda";
+                }
+
+                // Step 4: Save to MongoDB
+                await Ingredient.insertOne(
+                    new Ingredient({
+                        name: normalizePlural(ingredient.name).toLowerCase(),
+                        category: category,
+                        kosher: ingredient.kosher,
+                        description: usdaData.description,
+                        caloriesPer100g: calories
+                    })
+                );
+
+                console.log(`✅ Saved: ${ingredient.name} -> ${category}, ${calories} kcal`);
+
+            } catch (usdaError) {
+                console.log(`⚠️ Error fetching USDA data for ${ingredient.name}: ${usdaError.message}`);
+            }
+
+            // Step 5: Respect USDA API Rate Limit (Avoid 1000 requests per hour)
+            await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 sec delay
+        }
+
+        console.log("🎉 All ingredients processed!");
+        mongoose.connection.close(); // Close DB connection when done
+
+    } catch (error) {
+        console.error("❌ Error fetching MealDB data:", error.message);
+        mongoose.connection.close();
+    }
+}
+
+fetchAndSaveIngredients();
+
+//fetchOneIngredient();
+//seedDB();
+

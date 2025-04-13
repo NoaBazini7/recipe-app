@@ -1,0 +1,155 @@
+:root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    background-color: #EBE9E1;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    font-weight: 500;
+    color: #EFB11D;
+    text-decoration: inherit;
+}
+
+a:hover {
+    color: #EFB11D;
+    text-decoration: underline;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+#root {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+.card {
+    padding: 2em;
+}
+
+.read-the-docs {
+    color: #888;
+}
+
+body, html {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
+    height: 100vh;
+    color: #E43D12;
+}
+
+.background-strip {
+    position: fixed;
+    width: 100%;
+    height: 300px;
+    background-repeat: repeat-x;
+    background-position: top;
+    background-size: auto 100%;
+    left: 0;
+    pointer-events: none;
+}
+
+.button-container h1 {
+    font-size: 3rem;
+    transform: translateX(+35%);
+    max-width: 60%;
+    color: #975d2a;
+    text-align: center;
+
+}
+
+.button-container {
+    backdrop-filter: blur(70px);
+    max-width: 70%;
+    font-family: "Exo 2", system-ui;
+    position: relative;
+    bottom: 80px;
+    left: 50%;
+    color: white;
+    margin-top: 10%;
+    transform: translateX(-50%);
+    display: grid;
+    justify-content: center;
+    gap: 15px;
+    padding: 10px 20px;
+    border-radius: 60px;
+    z-index: 1000;
+}
+
+.button-container button {
+    width: 155px;
+    font-size: 1.5rem;
+    padding: 10px 35px;
+    border: none;
+    background-color: rgb(228, 61, 18, 0.7);
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+    text-overflow: unset;
+}
+
+.button-container button:hover {
+    background-color: rgba(239, 177, 29, 0.6);
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    font-family: "Exo 2", system-ui;
+    font-size: 18px;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.button-container h2 {
+
+    margin-bottom: 15px;
+    color: #E43D12;
+    font-size: 70px;
+    border-radius: 15px;
+}
+
+p {
+    color: #E43D12;
+    margin-top: 50px;
+    font-size: 20px;
+}
+
+.profile-container {
+    position: relative;
+    height: 100vh;
+}
+
+.ingredients-box {
+    max-height: 400px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    color: white;
+}
+

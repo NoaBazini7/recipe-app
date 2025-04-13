@@ -1,0 +1,62 @@
+import React, {useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import Axios from "axios";
+import "../App.css";
+
+const Login = () => {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+
+            const response = await Axios.post("http://localhost:5000/api/login", {
+                username,
+                password
+            });
+
+            if (response.data.success) {
+
+                navigate("/profile");
+            } else {
+                setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
+            }
+        } catch (error) {
+            console.error("Error during login:", error);
+            setErrorMessage("Login failed. Please try again.");
+        }
+    };
+
+    return (
+        <div className="button-container">
+            <h2>Login</h2>
+            {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Enter username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <button type="submit">Sign in</button>
+            </form>
+            <p>
+                No account? <Link to="/register">Register</Link>
+            </p>
+        </div>
+    );
+};
+
+export default Login;
