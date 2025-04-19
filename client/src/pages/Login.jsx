@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import Axios from "axios";
-import "../App.css";
+import {Box, Button, TextField, Typography} from "@mui/material";
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -13,14 +13,12 @@ const Login = () => {
         e.preventDefault();
 
         try {
-
             const response = await Axios.post("http://localhost:5000/api/auth/login", {
                 username,
                 password
             });
 
             if (response.data.success) {
-
                 navigate("/profile");
             } else {
                 setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
@@ -32,30 +30,55 @@ const Login = () => {
     };
 
     return (
-        <div className="button-container">
-            <h2>Login</h2>
-            {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
+        <Box
+            sx={{
+                backdropFilter: "blur(70px)",
+                backgroundColor: "background.paper", // just to give a lil frost look
+                maxWidth: 400,
+                mx: "auto",
+                mt: 10,
+                p: 4,
+                borderRadius: "20px",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+            }}
+        >
+            <Typography variant="h4" color="text.primary">
+                Login
+            </Typography>
+            {errorMessage && (
+                <Typography color="error" variant="body2">
+                    {errorMessage}
+                </Typography>
+            )}
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Enter username"
+                <TextField
+                    fullWidth
+                    label="Username"
+                    variant="outlined"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    required
+                    sx={{mb: 2}}
                 />
-                <input
+                <TextField
+                    fullWidth
+                    label="Password"
                     type="password"
-                    placeholder="Enter password"
+                    variant="outlined"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
+                    sx={{mb: 2}}
                 />
-                <button type="submit">Sign in</button>
+                <Button type="submit" variant="contained" color="primary" fullWidth>
+                    Sign in
+                </Button>
             </form>
-            <p>
-                No account? <Link to="/register">Register</Link>
-            </p>
-        </div>
+            <Typography variant="body2" color="text.secondary">
+                No account? <Link to="/register" style={{color: "text.primary", textDecoration: "none"}}>Register</Link>
+            </Typography>
+        </Box>
     );
 };
 

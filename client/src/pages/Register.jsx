@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import Axios from "axios";
-import "../App.css";
+import {Alert, Box, Button, Paper, TextField, Typography} from "@mui/material";
 
 const Register = () => {
     const [email, setEmail] = useState("");
@@ -18,10 +18,9 @@ const Register = () => {
         }
 
         try {
-
             const response = await Axios.post("http://localhost:5000/api/register", {
                 email,
-                password
+                password,
             });
 
             if (response.data.success) {
@@ -36,37 +35,85 @@ const Register = () => {
     };
 
     return (
-        <div className="button-container">
-            <h2>Register</h2>
-            {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>} {/* Показываем ошибку */}
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Enter email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Enter password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                />
-                <input
-                    type="password"
-                    placeholder="Confirm password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                />
-                <button type="submit">Submit</button>
-            </form>
-            <p>
-                Already have an account? <Link to="/login">Log in</Link>
-            </p>
-        </div>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                backgroundColor: "background.default",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "Inter",
+                px: 2,
+            }}
+        >
+            <Paper
+                elevation={4}
+                sx={{
+                    p: 4,
+                    maxWidth: 400,
+                    width: "100%",
+                    borderRadius: 4,
+                    backgroundColor: "background.paper",
+                }}
+            >
+                <Typography variant="h4" gutterBottom textAlign="center">
+                    Register
+                </Typography>
+
+                {errorMessage && (
+                    <Alert severity="error" sx={{mb: 2}}>
+                        {errorMessage}
+                    </Alert>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <TextField
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        margin="normal"
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label="Password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        margin="normal"
+                        required
+                    />
+                    <TextField
+                        fullWidth
+                        label="Confirm Password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        margin="normal"
+                        required
+                    />
+
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        sx={{mt: 3}}
+                    >
+                        Submit
+                    </Button>
+                </form>
+
+                <Typography variant="body2" color={"text.secondary"} sx={{mt: 2}} textAlign="center">
+                    Already have an account?{" "}
+                    <Link to="/login" style={{color: "text.primary", textDecoration: "none"}}>
+                        Log in
+                    </Link>
+                </Typography>
+            </Paper>
+        </Box>
     );
 };
 

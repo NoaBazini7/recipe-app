@@ -3,12 +3,12 @@ const packagingWords = [
     "large", "medium", "small", "jumbo", "extra", "clove", "cloves",
     "can", "cans", "pounds", "pound", "ounces", "ounce", "cup", "cups",
     "slices", "slice", "teaspoons", "tablespoons", "teaspoon", "tablespoon",
-    "inch", "inches", "fl", "oz", "ozs", "chunk", "chunks", "square","squares",
+    "inch", "inches", "fl", "oz", "ozs", "chunk", "chunks", "square", "squares",
     "piece", "pieces", "dash", "dashes", "bags", "bag", "bunch", "bunches",
     "bite size", "bites", "pints", "pint", "part", "quart", "quarts", "envelopes",
     "envelope", "bite sized", "carton", "cartons", "heads", "head", "ring", "rings",
     "drop", "drops", "gallon", "gallons", "jar", "jars", "milliliters", "milliliter",
-    "bottle", "bottles", "fluid", "liters", "liter",  "round", "rounds", "trays", "tray",
+    "bottle", "bottles", "fluid", "liters", "liter", "round", "rounds", "trays", "tray",
     "bunch", "box", "boxes", "strip",
 
 ];
@@ -28,7 +28,7 @@ const descriptorWords = [
     "very", "stewed", "broken in half", "split", "white lily", "cholula", "ball park", "crisp", "crisps",
     "more", "if", "as", "needed", "sharp", "to taste", "for frying", "with lime juice and cilantro (such as Rotel)",
     "with", "heart toothpick", "(such as Red Gold)", "from concentrate", "of excess fat", "for garnish",
-    "for serving", "tops seeds membranes removed", "cold", "hot", "freshly", "for rolling", "casings removed",
+    "for serving", "tops seeds membranes removed", "cold", "freshly", "for rolling", "casings removed",
     "warmed", "until liquid", "cooled", "at room temperature", "for dusting", "king arthur", "boiling", "pressed",
     "stemmed", "to", "for greasing", "for dusting pan", "pureed", "hulled", "chilled", "tails on",
     "seeds removed", "desired", "cover", "diagonally", "to portion", "zest", "zested", "equal",
@@ -38,7 +38,6 @@ const descriptorWords = [
 // Build regex patterns
 const packagingRegex = new RegExp(`\\b(${packagingWords.join('|')})\\b\\s?`, 'gi');
 const descriptorRegex = new RegExp(`\\s*(,|\\b)(${descriptorWords.join('|')})\\b`, 'gi');
-
 
 
 const normalize = (str) => {
@@ -74,13 +73,13 @@ function normalizePlural(ingredientName) {
 
     if (irregularPlurals[lastWord]) {
         words[words.length - 1] = irregularPlurals[lastWord];
-    } else
-        if (lastWord.endsWith("s") && !lastWord.endsWith("ss") && lastWord.length > 2 && lastWord !== "flakes") {
+    } else if (lastWord.endsWith("s") && !lastWord.endsWith("ss") && lastWord.length > 2 && lastWord !== "flakes") {
         words[words.length - 1] = lastWord.slice(0, -1);
     }
 
     return words.join(" ");
 }
+
 // Assuming you already have something like this:
 const normalizeIngredient = (raw) => {
     let ingredient = raw.toLowerCase().trim();
@@ -91,12 +90,12 @@ const normalizeIngredient = (raw) => {
     // Remove any quantity numbers (e.g., "2", "1", "½")
     ingredient = ingredient.replace(/^\d+(\.\d+)?(\s?½)?\s?/g, '').trim();
 
-    ingredient= ingredient.replace(packagingRegex, '')
+    ingredient = ingredient.replace(packagingRegex, '')
         .replace(descriptorRegex, '')
         .trim();// Remove adjectives like "Large", "Medium", "Small", etc.
 
-    ingredient= normalize(ingredient); // Normalize the ingredient name
-    ingredient= normalizePlural(ingredient); // Normalize plural forms
+    ingredient = normalize(ingredient); // Normalize the ingredient name
+    ingredient = normalizePlural(ingredient); // Normalize plural forms
 
 
     return ingredient;

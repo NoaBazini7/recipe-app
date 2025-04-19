@@ -1,38 +1,18 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useLocation } from "react-router-dom";
-import {Box, Typography, Card, CardContent, CardMedia, CircularProgress, Grid,} from "@mui/material";
+import React, {useState} from "react";
+import {useLocation} from "react-router-dom";
+import {Box, Card, CardContent, CardMedia, Grid, Typography,} from "@mui/material";
 import "../App.css";
 
 const RecipesPage = () => {
     const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const ingredientsParam = queryParams.get("ingredients");
-    const selectedIngredients = ingredientsParam ? ingredientsParam.split(",") : [];
-    const [recipes, setRecipes] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const recipesFromState = location.state?.recipes || [];
+    const [recipes, setRecipes] = useState(recipesFromState);
+    //const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchRecipes = async () => {
-            try {
-                const response = await axios.post("http://localhost:5000/api/recipes", {
-                    ingredients: selectedIngredients,
-                });
-                setRecipes(response.data);
-            } catch (error) {
-                console.error("Error fetching recipes:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRecipes();
-    }, [selectedIngredients]);
-
-    if (loading) return <CircularProgress sx={{ mt: 10 }} />;
+    //if (loading) return <CircularProgress sx={{mt: 10}}/>;
 
     return (
-        <Box px={4} py={6}>
+        <Box px={4} py={6} maxHeight={500} overflow={"auto"}>
             <Typography variant="h4" gutterBottom textAlign="center">
                 Recipes for You
             </Typography>
@@ -48,7 +28,7 @@ const RecipesPage = () => {
                                     borderRadius: 4,
                                     boxShadow: 3,
                                     transition: "0.3s",
-                                    ":hover": { boxShadow: 6 },
+                                    ":hover": {boxShadow: 6},
                                 }}
                             >
                                 {recipe.image && (
@@ -61,10 +41,10 @@ const RecipesPage = () => {
                                 )}
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom>
-                                        {recipe.name}
+                                        {recipe.title}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        {recipe.description || "No description provided."}
+                                        {recipe.category || "No description provided."}
                                     </Typography>
                                 </CardContent>
                             </Card>

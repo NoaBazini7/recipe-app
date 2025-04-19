@@ -21,4 +21,4 @@ const deleteRecipe = async (id) => {
     return Recipe.deleteOne(id); // Deletes a recipe by ID
 };
 
-module.exports = { getAllRecipes, getRecipeById, addRecipe, updateRecipe, deleteRecipe };
+module.exports = {getAllRecipes, getRecipeById, addRecipe, updateRecipe, deleteRecipe};

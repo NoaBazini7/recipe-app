@@ -8,6 +8,7 @@ import WelcomePage from "./pages/WelcomePage.jsx";
 import RecipesPage from "./pages/RecipesPage.jsx";
 import UserPage from "./pages/UserPage.jsx";
 
+
 function App() {
     return (
         <Routes>
@@ -15,8 +16,8 @@ function App() {
             <Route path="/login" element={<Login/>}/>
             <Route path="/register" element={<Register/>}/>
             <Route path="/profile" element={<Profile/>}/>
-            <Route path="/recipes" element={<RecipesPage/>} />
-            <Route path="/user" element={<UserPage />} />
+            <Route path="/recipes" element={<RecipesPage/>}/>
+            {<Route path="/user" element={<UserPage/>}/>}
             {/*<Route path="/" element={<Ingredients />} />*/}
             <Route path="*" element={<NotFound/>}/>
         </Routes>
