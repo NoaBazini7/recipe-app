@@ -4,13 +4,13 @@ const userController = require("../controllers/userController");
 
 router.get("/", userController.getAllUsers);
 
-router.get("/:id", userController.getUserById);
+router.get("/search", userController.getUserById);
 
 router.post("/", userController.createUser);
 
-router.put("/:id", userController.updateUser);
+router.put("/update", userController.updateUser);
 
-router.delete("/:id", userController.deleteUser);
+router.delete("/delete", userController.deleteUser);
 
 router.put("/change-password", userController.changePassword);
 

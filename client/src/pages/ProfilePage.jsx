@@ -5,12 +5,14 @@ import {Box, Button, CircularProgress, IconButton, Typography,} from "@mui/mater
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "../App.css";
 import {IngredientsList} from "../components/IngredientsList.jsx";
+import {useUser} from "../contexts/UserContext.jsx";
 
 const ProfilePage = () => {
     const [ingredients, setIngredients] = useState([]);
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const {user} = useUser();
 
     useEffect(() => {
         const fetchIngredients = async () => {
@@ -28,13 +30,14 @@ const ProfilePage = () => {
         };
 
         fetchIngredients();
+        console.log("User in ProfilePage:", user);
     }, []);
 
-    const handleToggleIngredient = (id) => {
+    const handleToggleIngredient = (ingredient) => {
         setSelectedIngredients((prevSelected) =>
-            prevSelected.includes(id)
-                ? prevSelected.filter((item) => item !== id)
-                : [...prevSelected, id]
+            prevSelected.includes(ingredient)
+                ? prevSelected.filter((item) => item.id !== ingredient.id)
+                : [...prevSelected, ingredient]
         );
     };
 
@@ -43,7 +46,7 @@ const ProfilePage = () => {
             const response = await axios.post(
                 "http://localhost:5000/api/recipes/filteredRecipes",
                 {
-                    ingredients: selectedIngredients.map((name) => ({name})),
+                    ingredients: selectedIngredients.map((ingredient) => (ingredient.name)),
                 }
             );
             navigate("/recipes", {state: {recipes: response.data}});
@@ -83,7 +86,7 @@ const ProfilePage = () => {
 
             {/* Header */}
             <Typography variant="h4" gutterBottom textAlign="center">
-                Welcome! Are you ready for cooking adventures?
+                Welcome back {(user.username)}!
             </Typography>
 
             <Box
@@ -114,7 +117,7 @@ const ProfilePage = () => {
                     <IngredientsList
                         ingredients={ingredients}
                         onClick={(ingredient) => {
-                            handleToggleIngredient(ingredient._id);
+                            handleToggleIngredient(ingredient);
                         }}
                     />
                 </Box>

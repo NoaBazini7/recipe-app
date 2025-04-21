@@ -2,12 +2,14 @@ import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import Axios from "axios";
 import {Box, Button, TextField, Typography} from "@mui/material";
+import {useUser} from "../contexts/UserContext.jsx";
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate();
+    const {login} = useUser();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,6 +21,7 @@ const Login = () => {
             });
 
             if (response.data.success) {
+                login(response.data.user, response.data.token);
                 navigate("/profile");
             } else {
                 setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
