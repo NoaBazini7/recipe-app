@@ -21,7 +21,6 @@ function WelcomePage() {
                 sx={{
                     backdropFilter: "blur(70px)",
                     maxWidth: "70%",
-                    fontFamily: "Exo 2, system-ui",
                     position: "absolute",
                     alignItems: "center",
                     top: "50%", // Center vertically
@@ -31,22 +30,22 @@ function WelcomePage() {
                     flexDirection: "column",
                     justifyContent: "center",
                     gap: "15px",
-                    padding: "10px 20px",
+                    padding: "40px 20px",
                     borderRadius: "60px",
                     zIndex: 1000,
                     textAlign: "center",
                 }}
             >
-                <Typography variant="h3" sx={{maxWidth: "60%"}}>
+                <Typography variant="h3" sx={{maxWidth: "80%", color:"primary.contrastText", padding:"40px", textShadow:"2px black"}}>
                     Let's start exploring the world of cooking together!
                 </Typography>
                 <Button variant="contained"
-                        sx={{fontSize: "1.5rem", borderRadius: "20px", width: "200px"}}
+                        sx={{fontSize: "1rem", borderRadius: "20px", width: "150px"}}
                         onClick={handleLogIn}>
                     Log in
                 </Button>
                 <Button variant="contained"
-                        sx={{fontSize: "1.5rem", borderRadius: "20px", width: "200px"}}
+                        sx={{fontSize: "1rem", borderRadius: "20px", width: "150px"}}
                         onClick={handleRegister}>
                     Register
                 </Button>

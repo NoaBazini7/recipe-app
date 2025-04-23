@@ -35,8 +35,8 @@ const ProfilePage = () => {
 
     const handleToggleIngredient = (ingredient) => {
         setSelectedIngredients((prevSelected) =>
-            prevSelected.includes(ingredient)
-                ? prevSelected.filter((item) => item.id !== ingredient.id)
+            prevSelected.find((item) => item._id === ingredient._id)
+                ? prevSelected.filter((item) => item._id !== ingredient._id)
                 : [...prevSelected, ingredient]
         );
     };
@@ -46,7 +46,7 @@ const ProfilePage = () => {
             const response = await axios.post(
                 "http://localhost:5000/api/recipes/filteredRecipes",
                 {
-                    ingredients: selectedIngredients.map((ingredient) => (ingredient.name)),
+                    ingredients: selectedIngredients.map((ingredient) => ingredient.name),
                 }
             );
             navigate("/recipes", {state: {recipes: response.data}});
@@ -65,14 +65,12 @@ const ProfilePage = () => {
         <Box
             sx={{
                 px: 4,
-
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 position: "relative",
                 minHeight: "100vh",
-                backgroundColor: "primary.main",
-
+                backgroundColor: "background.paper",
             }}
             className="profilePage"
         >
@@ -85,10 +83,9 @@ const ProfilePage = () => {
             </IconButton>
 
             {/* Header */}
-            <Typography variant="h4" gutterBottom textAlign="center">
-                Welcome back {(user.username)}!
+            <Typography variant="h3" gutterBottom textAlign="center">
+                Welcome back {/*(user.username)*/}!
             </Typography>
-
             <Box
                 sx={{
                     width: "100%",
@@ -99,7 +96,7 @@ const ProfilePage = () => {
                 {/* Subheading */}
                 <Typography
                     variant="body1"
-                    sx={{fontSize: "1.5rem", mb: 4}}
+                    sx={{mb: 2, color: "text.secondary"}}
                     textAlign="center"
                 >
                     Choose your fridge's content
@@ -108,10 +105,9 @@ const ProfilePage = () => {
                 {/* Ingredient List */}
                 <Box
                     sx={{
-                        width: "820px",
+                        width: "900px",
                         height: "50vh",
                         overflow: "hidden",
-                        mb: 4,
                     }}
                 >
                     <IngredientsList
@@ -127,16 +123,12 @@ const ProfilePage = () => {
                     variant="contained"
                     onClick={handleFindRecipes}
                     sx={{
-                        px: 6,
-                        py: 1.5,
-                        borderRadius: 3,
-
+                        mt: 1,
                     }}
                 >
                     Find Recipes
                 </Button>
             </Box>
-
         </Box>
     );
 };

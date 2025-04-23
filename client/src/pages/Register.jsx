@@ -42,7 +42,6 @@ const Register = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontFamily: "Inter",
                 px: 2,
             }}
         >
@@ -50,10 +49,15 @@ const Register = () => {
                 elevation={4}
                 sx={{
                     p: 4,
-                    maxWidth: 400,
+                    border: "4px solid",
+                    borderColor: "text.primary",
+                    maxWidth: 800,
                     width: "100%",
-                    borderRadius: 4,
                     backgroundColor: "background.paper",
+                    boxShadow: 6,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
                 }}
             >
                 <Typography variant="h4" gutterBottom textAlign="center">
@@ -61,7 +65,7 @@ const Register = () => {
                 </Typography>
 
                 {errorMessage && (
-                    <Alert severity="error" sx={{mb: 2}}>
+                    <Alert severity="error" sx={{ mb: 2 }}>
                         {errorMessage}
                     </Alert>
                 )}
@@ -98,17 +102,18 @@ const Register = () => {
                     <Button
                         fullWidth
                         variant="contained"
-                        color="primary"
                         type="submit"
-                        sx={{mt: 3}}
+                        sx={{
+                            mt: 3,
+                        }}
                     >
                         Submit
                     </Button>
                 </form>
 
-                <Typography variant="body2" color={"text.secondary"} sx={{mt: 2}} textAlign="center">
+                <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }} textAlign="center">
                     Already have an account?{" "}
-                    <Link to="/login" style={{color: "text.primary", textDecoration: "none"}}>
+                    <Link to="/login" style={{ color: "text.primary", textDecoration: "underline" }}>
                         Log in
                     </Link>
                 </Typography>

@@ -13,30 +13,32 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        try {
-            const response = await Axios.post("http://localhost:5000/api/auth/login", {
-                username,
-                password
-            });
-
-            if (response.data.success) {
-                login(response.data.user, response.data.token);
-                navigate("/profile");
-            } else {
-                setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
-            }
-        } catch (error) {
-            console.error("Error during login:", error);
-            setErrorMessage("Login failed. Please try again.");
-        }
+        navigate("/profile");
+        // try {
+        //     const response = await Axios.post("http://localhost:5000/api/auth/login", {
+        //         username,
+        //         password
+        //     });
+        //
+        //     if (response.data.success) {
+        //         login(response.data.user, response.data.token);
+        //         navigate("/profile");
+        //     } else {
+        //         setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
+        //     }
+        // } catch (error) {
+        //     console.error("Error during login:", error);
+        //     setErrorMessage("Login failed. Please try again.");
+        // }
     };
 
     return (
         <Box
             sx={{
-                backdropFilter: "blur(70px)",
-                backgroundColor: "background.paper", // just to give a lil frost look
+                boxShadow:6,
+                border:"5px solid",
+                borderColor: "text.secondary",
+                backgroundColor: "background.paper",
                 maxWidth: 400,
                 mx: "auto",
                 mt: 10,
