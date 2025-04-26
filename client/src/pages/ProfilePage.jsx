@@ -6,13 +6,24 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import "../App.css";
 import {IngredientsList} from "../components/IngredientsList.jsx";
 import {useUser} from "../contexts/UserContext.jsx";
+import {AnimatePresence, motion} from "framer-motion";
+import EditUserForm from "../components/EditUserForm.jsx";
+
 
 const ProfilePage = () => {
+    const [activeSection, setActiveSection] = useState("ingredients");
     const [ingredients, setIngredients] = useState([]);
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const {user} = useUser();
+
+    const menuItems = [
+        {key: "ingredients", label: "My Ingredients"},
+        {key: "editProfile", label: "Edit Profile"},
+        {key: "recipes", label: "Saved Recipes"},
+        {key: "settings", label: "Settings"},
+    ];
 
     useEffect(() => {
         const fetchIngredients = async () => {
@@ -32,6 +43,42 @@ const ProfilePage = () => {
         fetchIngredients();
         console.log("User in ProfilePage:", user);
     }, []);
+
+    useEffect(() => {
+        console.log("selectedIngredients", selectedIngredients);
+    }, [selectedIngredients]);
+
+    const renderSection = () => {
+        switch (activeSection) {
+            case "ingredients":
+                return (
+                    <Box>
+                        <IngredientsList ingredients={ingredients} onClick={(ingredient) => {
+                            handleToggleIngredient(ingredient);
+                        }}/>
+                        <Box sx={{display: "flex", justifyContent: "center", mt: 15}}>
+                            <Button variant="contained" onClick={handleFindRecipes}>
+                                Find Recipes
+                            </Button>
+                        </Box>
+                    </Box>
+
+                );
+            case "editProfile":
+                return (
+                    <Box sx={{p: 2}}>
+                        <EditUserForm/>
+                    </Box>
+
+                );
+            case "recipes":
+                return <Box sx={{p: 2}}>📖 Saved Recipes</Box>;
+            case "settings":
+                return <Box sx={{p: 2}}>⚙️ Settings</Box>;
+            default:
+                return null;
+        }
+    };
 
     const handleToggleIngredient = (ingredient) => {
         setSelectedIngredients((prevSelected) =>
@@ -66,14 +113,41 @@ const ProfilePage = () => {
             sx={{
                 px: 4,
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
+                flexDirection: "row", // changed from column
+                alignItems: "flex-start",
                 position: "relative",
                 minHeight: "100vh",
+                minWidth: "80vw",
                 backgroundColor: "background.paper",
+                pl: 0,
+                overflowX: "auto",
             }}
             className="profilePage"
         >
+
+            {/* Sidebar */}
+            <Box sx={{
+                width: 200,
+                height: "100vh",
+                backgroundColor: "primary.main",
+                justifyContent: "center",
+                gap: 2,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
+            }}>
+                {menuItems.map((item) => (
+                    <Button
+                        key={item.key}
+                        variant={activeSection === item.key ? "contained" : "outlined"}
+                        fullWidth
+                        sx={{mb: 1, width: "90%", color: "text.primary"}}
+                        onClick={() => setActiveSection(item.key)}
+                    >
+                        {item.label}
+                    </Button>
+                ))}
+            </Box>
             {/* Profile Icon in Top Right */}
             <IconButton
                 onClick={handleGoToProfile}
@@ -82,52 +156,38 @@ const ProfilePage = () => {
                 <AccountCircleIcon sx={{fontSize: 40, color: "text.primary"}}/>
             </IconButton>
 
-            {/* Header */}
-            <Typography variant="h3" gutterBottom textAlign="center">
-                Welcome back {/*(user.username)*/}!
-            </Typography>
-            <Box
-                sx={{
-                    width: "100%",
-                    height: "100%",
-                    overflow: "hidden",
-                    mb: 4,
-                }}>
-                {/* Subheading */}
+
+            {/* Main Content with Animation */}
+            <Box sx={{flex: 1, pt: 5, alignItems: "center",}}>
+                <Typography variant="h3" gutterBottom textAlign="center">
+                    Welcome {user ? user.username : "User"}!
+                </Typography>
+
                 <Typography
                     variant="body1"
                     sx={{mb: 2, color: "text.secondary"}}
                     textAlign="center"
                 >
-                    Choose your fridge's content
+                    {activeSection === "ingredients" ? "Choose your fridge's content" : ""}
                 </Typography>
 
-                {/* Ingredient List */}
-                <Box
-                    sx={{
-                        width: "900px",
-                        height: "50vh",
-                        overflow: "hidden",
-                    }}
-                >
-                    <IngredientsList
-                        ingredients={ingredients}
-                        onClick={(ingredient) => {
-                            handleToggleIngredient(ingredient);
-                        }}
-                    />
-                </Box>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeSection}
+                        initial={{opacity: 0, x: 50}}
+                        animate={{opacity: 1, x: 0}}
+                        exit={{opacity: 0, x: -50}}
+                        transition={{duration: 0.3}}
+                        style={{width: "100%"}}
+                    >
+                        <Box sx={{p: 2, display: "flex", justifyContent: "center", alignItems: "center"}}>
+                            {renderSection()}
+                        </Box>
 
-                {/* Button */}
-                <Button
-                    variant="contained"
-                    onClick={handleFindRecipes}
-                    sx={{
-                        mt: 1,
-                    }}
-                >
-                    Find Recipes
-                </Button>
+                    </motion.div>
+                </AnimatePresence>
+
+
             </Box>
         </Box>
     );

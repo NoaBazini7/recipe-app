@@ -13,30 +13,29 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        navigate("/profile");
-        // try {
-        //     const response = await Axios.post("http://localhost:5000/api/auth/login", {
-        //         username,
-        //         password
-        //     });
-        //
-        //     if (response.data.success) {
-        //         login(response.data.user, response.data.token);
-        //         navigate("/profile");
-        //     } else {
-        //         setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
-        //     }
-        // } catch (error) {
-        //     console.error("Error during login:", error);
-        //     setErrorMessage("Login failed. Please try again.");
-        // }
+        try {
+            const response = await Axios.post("http://localhost:5000/api/auth/login", {
+                username,
+                password
+            });
+
+            if (response.data.success) {
+                login(response.data.user, response.data.token);
+                navigate("/profile");
+            } else {
+                setErrorMessage(response.data.message || "Login failed. Please check your credentials.");
+            }
+        } catch (error) {
+            console.error("Error during login:", error);
+            setErrorMessage("Login failed. Please try again.");
+        }
     };
 
     return (
         <Box
             sx={{
-                boxShadow:6,
-                border:"5px solid",
+                boxShadow: 6,
+                border: "5px solid",
                 borderColor: "text.secondary",
                 backgroundColor: "background.paper",
                 maxWidth: 400,

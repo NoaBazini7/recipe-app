@@ -14,7 +14,7 @@ async function seedUsers() {
         {
             username: 'noa',
             email: 'noa@example.com',
-            password: 'password123',
+            password: '1234',
             allergies: [],
         },
         {
@@ -32,7 +32,6 @@ async function seedUsers() {
     ];
 
     for (let user of users) {
-        user.password = await bcrypt.hash(user.password, 10);
         const newUser = await User.create(user);
         console.log(`👤 Created user: ${newUser.username}`);
     }

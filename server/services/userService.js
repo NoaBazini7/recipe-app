@@ -9,17 +9,22 @@ const getUserById = async (id) => {
     return User.findById(id);
 };
 
- const getUserByUsername = async (username) => {
-    return User.findOne({ username });
- };
+const getUserByUsername = async (username) => {
+    return User.findOne({username});
+};
 
 const createUser = async (userData) => {
     const user = new User(userData);
     return await user.save();
 };
 
-const updateUser = async (id, userData) => {
-    return User.updateOne(id, userData);
+const updateUser = async (userData) => {
+    if (userData.password) {
+        const salt = await bcrypt.genSalt(10);
+        userData.password = await bcrypt.hash(userData.password, salt);
+    } else
+        delete userData.password;
+    return User.updateOne(userData);
 };
 
 const deleteUser = async (id) => {
@@ -48,6 +53,16 @@ const changePassword = async (userId, oldPassword, newPassword) => {
     user.password = hashedPassword;
     await user.save();
 
-    return user; }
+    return user;
+}
 
-module.exports = { getAllUsers, getUserById, getUserByUsername, createUser, updateUser, deleteUser, checkPassword, changePassword };
+module.exports = {
+    getAllUsers,
+    getUserById,
+    getUserByUsername,
+    createUser,
+    updateUser,
+    deleteUser,
+    checkPassword,
+    changePassword
+};

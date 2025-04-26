@@ -1,6 +1,6 @@
 const packagingWords = [
     "container", "canned", "package", "packages", "packet", "loaf",
-    "large", "medium", "small", "jumbo", "extra", "clove", "cloves",
+    "large", "medium", "small", "jumbo", "extra",
     "can", "cans", "pounds", "pound", "ounces", "ounce", "cup", "cups",
     "slices", "slice", "teaspoons", "tablespoons", "teaspoon", "tablespoon",
     "inch", "inches", "fl", "oz", "ozs", "chunk", "chunks", "square", "squares",
@@ -9,7 +9,8 @@ const packagingWords = [
     "envelope", "bite sized", "carton", "cartons", "heads", "head", "ring", "rings",
     "drop", "drops", "gallon", "gallons", "jar", "jars", "milliliters", "milliliter",
     "bottle", "bottles", "fluid", "liters", "liter", "round", "rounds", "trays", "tray",
-    "bunch", "box", "boxes", "strip",
+    "bunch", "box", "boxes", "strip", "floret", "florets", "ears", "ear", "bite-sized",
+    "old bay", "in bias", "hillshire farm rope", "tops",
 
 ];
 
@@ -32,8 +33,35 @@ const descriptorWords = [
     "warmed", "until liquid", "cooled", "at room temperature", "for dusting", "king arthur", "boiling", "pressed",
     "stemmed", "to", "for greasing", "for dusting pan", "pureed", "hulled", "chilled", "tails on",
     "seeds removed", "desired", "cover", "diagonally", "to portion", "zest", "zested", "equal",
-    "discarded leaf", "pure", "morton", "broken in half",
+    "discarded leaf", "pure", "morton", "broken in half", "food", "from", "chipotle pepper",
+    "for coating", "pan", "campbell's", "ez peel type", "shells down the back", "fully", "jimmy dean",
+    "flanken across bone", "tiny", "frank's redhot", "tabasco", "valentina", "tails removed", "tail", "left on",
+    "husked", "thirds", "white green parts",
 ];
+
+const ingredientsMap = {
+    "dried active yeast": "active yeast",
+    "garlic granules": "granulated garlic",
+    "dried onion": "dried onion flakes",
+    "pickled jalape os": "pickled jalapenos",
+    "jalape o pepper": "jalapeno peppers",
+    "english cucumber": "cucumber",
+    "coarse salt": "kosher salt",
+    "steak fillet": "beef tenderloin",
+    "almond meal": "almond flour",
+    "apple apples": "apple",
+    "gluten free chicken broth": "chicken broth",
+    "pork beans": "pork and beans can",
+    "italian style salad dressing mix": "italian style salad dressing",
+    //garlic cloves
+    "hard egg": "eggs",
+    "hard eggs": "eggs",
+    "hot water": "water",
+    "chipotle chilies in adobo sauce": "chipotle peppers in adobo sauce",
+    "adobo sauce chipotle peppers": "chipotle peppers in adobo sauce",
+
+
+}
 
 // Build regex patterns
 const packagingRegex = new RegExp(`\\b(${packagingWords.join('|')})\\b\\s?`, 'gi');
@@ -42,8 +70,9 @@ const descriptorRegex = new RegExp(`\\s*(,|\\b)(${descriptorWords.join('|')})\\b
 
 const normalize = (str) => {
     return str
+        .replace(/\(.*?\)/g, '') // removes (anything in parentheses)
         .toLowerCase()
-        .replace(/[^a-z\s]/g, ' ') // remove punctuation
+        .replace(/[^a-z'\s]/g, ' ') // remove punctuation
         .replace(/\s+/g, ' ')
         .trim();
 };
@@ -95,7 +124,7 @@ const normalizeIngredient = (raw) => {
         .trim();// Remove adjectives like "Large", "Medium", "Small", etc.
 
     ingredient = normalize(ingredient); // Normalize the ingredient name
-    ingredient = normalizePlural(ingredient); // Normalize plural forms
+    //ingredient = normalizePlural(ingredient); // Normalize plural forms
 
 
     return ingredient;

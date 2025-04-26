@@ -9,8 +9,7 @@ export default function EditUserForm({onUpdate}) {
     const [success, setSuccess] = useState("");
     const [error, setError] = useState("");
     const [formData, setFormData] = useState({
-        username: user.username || "",
-        email: user.email || "",
+        email: user ? user.email : "",
         password: "", // Leave empty unless they want to change
     });
 
@@ -28,7 +27,8 @@ export default function EditUserForm({onUpdate}) {
         setError("");
 
         try {
-            const {data} = await axios.put(`/api/users/${user._id}`, formData);
+            formData.username = user.username; // Include username in the request
+            const {data} = await axios.put(`http://localhost:5000/api/users/update`, formData);
             setSuccess("User info updated successfully!");
             onUpdate?.(data); // Notify parent if needed
         } catch (err) {
@@ -39,20 +39,15 @@ export default function EditUserForm({onUpdate}) {
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{maxWidth: 400, mx: "auto", mt: 4}}>
+        <Box component="form" onSubmit={handleSubmit} sx={{
+            maxWidth: 400, mx: "auto", mt: 4,
+            display: "flex", flexDirection: "column", gap: 2, justifyContent: "center",
+        }}>
             <Typography variant="h5" gutterBottom>
                 Edit Profile
             </Typography>
 
             <Stack spacing={2}>
-                <TextField
-                    label="Username"
-                    name="username"
-                    fullWidth
-                    value={formData.username}
-                    onChange={handleChange}
-                />
-
                 <TextField
                     label="Email"
                     name="email"
@@ -75,9 +70,13 @@ export default function EditUserForm({onUpdate}) {
                 {success && <Alert severity="success">{success}</Alert>}
                 {error && <Alert severity="error">{error}</Alert>}
 
-                <Button type="submit" variant="contained" disabled={loading}>
-                    {loading ? "Updating..." : "Save Changes"}
-                </Button>
+                <Box sx={{display: "flex", justifyContent: "center"}}>
+                    <Button type="submit" variant="contained" disabled={loading} sx={
+                        {width: "70%"}
+                    }>
+                        {loading ? "Updating..." : "Save Changes"}
+                    </Button>
+                </Box>
             </Stack>
         </Box>
     );

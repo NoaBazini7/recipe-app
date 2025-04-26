@@ -5,6 +5,8 @@ import HomeIcon from "@mui/icons-material/Home";
 import LogoutIcon from "@mui/icons-material/Logout";
 import axios from "axios";
 import "../App.css";
+import {useUser} from "../contexts/UserContext.jsx";
+
 
 const inputStyle = {
     width: "100%",
@@ -25,8 +27,12 @@ const UserPage = () => {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
+    const {logout} = useUser();
+
     const handleLogout = () => {
         alert("Logged out!");
+        logout();
+
         navigate("/");
     };
 

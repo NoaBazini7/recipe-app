@@ -1,72 +1,13 @@
 import {Box, Chip, TextField} from "@mui/material";
-import {useMemo, useState, useEffect, useRef, useCallback} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {FixedSizeGrid as Grid} from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
+import AlphabetSidebar from "./AlphabetSidebar.jsx";
 
 const COLUMN_COUNT = 4;
 const ITEM_WIDTH = 200;
 const CHIP_HEIGHT = 64;
 
-//alphabet sidebar
-function AlphabetSidebar({ onLetterClick, activeLetter }) {
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    return (
-        <Box
-            sx={{
-                width: 30,
-                mr: 2,
-                height: "90%",
-                mt: 10,
-                overflowY: "auto",
-                backgroundColor: "background.paper",
-                borderRadius: 2,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                    "&::-webkit-scrollbar": {
-                        width: 6,
-
-                    },
-                    "&::-webkit-scrollbar-track": {
-                        backgroundColor: "background.paper",
-                        borderRadius: 3,
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                        backgroundColor: "text.primary",
-                        borderRadius: 9,
-                    },
-                    "&::-webkit-scrollbar-thumb:hover": {
-                        backgroundColor: "text.secondary",
-                    },
-                    "&::-webkit-scrollbar-button": {
-                        display: "none",
-                        height: 0,
-                        width: 0,
-                    },
-            }}
-        >
-            {alphabet.map((letter) => (
-                <Box
-                    key={letter}
-                    sx={{
-                        fontSize: 15,
-                        cursor: "pointer",
-                        userSelect: "none",
-                        fontWeight: "bold",
-                        color: letter === activeLetter ? "primary.main" : "text.primary",
-                        transition: "color 0.2s, font-weight 0.2s",
-                        "&:hover": {
-                            color: "text.secondary",
-                        },
-                    }}
-                    onClick={() => onLetterClick(letter)}
-                >
-                    {letter}
-                </Box>
-            ))}
-        </Box>
-    );
-}
 
 export function IngredientsList({ingredients, onClick}) {
     const [selectedIngredient, setSelectedIngredient] = useState([]);
@@ -80,6 +21,10 @@ export function IngredientsList({ingredients, onClick}) {
         );
         setFilteredIngredients(filtered);
     }, [ingredients, searchTerm]);
+
+    useEffect(() => {
+        console.log("Selected Ingredients:", selectedIngredient);
+    }, [selectedIngredient]);
 
     const handleChipClick = (ingredient) => {
         setSelectedIngredient((prev) =>
@@ -115,7 +60,7 @@ export function IngredientsList({ingredients, onClick}) {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    padding: 1,
+                    padding: 2,
                 }}
             >
                 <Chip
@@ -133,7 +78,7 @@ export function IngredientsList({ingredients, onClick}) {
                     variant="outlined"
                     onClick={() => handleChipClick(ingredient)}
                     sx={{
-                        width: ITEM_WIDTH - 11,
+                        width: ITEM_WIDTH,
                         height: CHIP_HEIGHT,
                         backgroundColor: isSelected ? "text.primary" : "primary.main",
                         color: isSelected ? "background.paper" : "text.primary",
@@ -166,9 +111,15 @@ export function IngredientsList({ingredients, onClick}) {
     }, [filteredIngredients]);
 
     return (
-        <Box sx={{display: "flex", width: "100%", height: "30vh"}}>
-            <AlphabetSidebar onLetterClick={handleLetterClick} />
-            <Box sx={{flex: 1}}>
+        <Box sx={{display: "flex", width: "100%", height: "55vh",}}>
+
+            <Box sx={{
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "column",
+
+            }}>
+
                 <TextField
                     variant="outlined"
                     placeholder="Search ingredients..."
@@ -180,12 +131,15 @@ export function IngredientsList({ingredients, onClick}) {
                         width: "70%",
                     }}
                 />
-                <AutoSizer>
-                    {({ height, width }) => (
+
+                <AutoSizer disableWidth={true}>
+                    {({height}) => (
                         <Box
                             sx={{
                                 height,
-                                width,
+                                width: "100%",
+                                display: "flex",
+                                flexDirection: "row",
                                 "& .custom-scroll::-webkit-scrollbar": {
                                     width: 9,
 
@@ -212,6 +166,7 @@ export function IngredientsList({ingredients, onClick}) {
                                 },
                             }}
                         >
+                            <AlphabetSidebar onLetterClick={handleLetterClick}/>
                             <Grid
                                 ref={gridRef}
                                 className="custom-scroll"
@@ -220,7 +175,7 @@ export function IngredientsList({ingredients, onClick}) {
                                 height={height}
                                 rowCount={itemData.length}
                                 rowHeight={CHIP_HEIGHT + 16}
-                                width={width}
+                                width={ITEM_WIDTH * COLUMN_COUNT + 20}
                             >
                                 {Cell}
                             </Grid>

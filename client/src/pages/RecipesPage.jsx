@@ -1,16 +1,6 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import {
-    Box,
-    Card,
-    CardContent,
-    CardMedia,
-    Grid,
-    Typography,
-    IconButton,
-    Button,
-    Stack,
-} from "@mui/material";
+import React, {useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {Box, Button, Card, CardContent, CardMedia, Grid, IconButton, Stack, Typography,} from "@mui/material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HomeIcon from "@mui/icons-material/Home";
 import "../App.css";
@@ -19,10 +9,11 @@ const RecipesPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const recipesFromState = location.state?.recipes || [];
-    const [recipes, setRecipes] = useState(recipesFromState);
+    console.log("location state", location.state);
+    const [recipes] = useState(recipesFromState);
 
     return (
-        <Box sx={{ maxHeight: 500, overflow: "auto", px: 4, pt: 10, pb: 6 }}>
+        <Box sx={{overflow: "auto", px: 4, pt: 10, pb: 6}}>
             <Box
                 sx={{
                     position: "fixed",
@@ -43,10 +34,10 @@ const RecipesPage = () => {
                     </Typography>
                     <Box>
                         <IconButton onClick={() => navigate("/profile")}>
-                            <HomeIcon sx={{ fontSize: 30, color: "text.secondary" }} />
+                            <HomeIcon sx={{fontSize: 30, color: "text.secondary"}}/>
                         </IconButton>
                         <IconButton onClick={() => navigate("/user")}>
-                            <AccountCircleIcon sx={{ fontSize: 30, color: "text.secondary" }} />
+                            <AccountCircleIcon sx={{fontSize: 30, color: "text.secondary"}}/>
                         </IconButton>
                     </Box>
                 </Stack>
@@ -65,22 +56,22 @@ const RecipesPage = () => {
                                     borderRadius: 2,
                                     boxShadow: 8,
                                     transition: "0.3s",
-                                    ":hover": { boxShadow: 20 },
+                                    ":hover": {boxShadow: 20},
                                     display: "flex",
                                     flexDirection: "column",
                                     height: "100%",
                                 }}
                             >
-                                {recipe.image && recipe.image.startsWith("http") &&(
+                                {recipe.imageUrl && recipe.imageUrl.startsWith("http") && (
                                     <CardMedia
                                         component="img"
                                         height="160"
                                         alt={recipe.title}
-                                        image ={recipe.image}
-                                        sx={{ objectFit: "cover" }}
+                                        image={recipe.imageUrl || "https://placehold.co/300x160?text=No+Image"}
+                                        sx={{objectFit: "cover"}}
                                     />
                                 )}
-                                <CardContent sx={{ flexGrow: 1 }}>
+                                <CardContent sx={{flexGrow: 1}}>
                                     <Typography variant="h6" gutterBottom>
                                         {recipe.title}
                                     </Typography>

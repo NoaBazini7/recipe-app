@@ -4,6 +4,7 @@ import Axios from "axios";
 import {Alert, Box, Button, Paper, TextField, Typography} from "@mui/material";
 
 const Register = () => {
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -18,7 +19,8 @@ const Register = () => {
         }
 
         try {
-            const response = await Axios.post("http://localhost:5000/api/register", {
+            const response = await Axios.post("http://localhost:5000/api/auth/register", {
+                username,
                 email,
                 password,
             });
@@ -65,12 +67,21 @@ const Register = () => {
                 </Typography>
 
                 {errorMessage && (
-                    <Alert severity="error" sx={{ mb: 2 }}>
+                    <Alert severity="error" sx={{mb: 2}}>
                         {errorMessage}
                     </Alert>
                 )}
 
                 <form onSubmit={handleSubmit}>
+                    <TextField
+                        fullWidth
+                        label="Username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        margin="normal"
+                        required
+                    />
                     <TextField
                         fullWidth
                         label="Email"
@@ -111,9 +122,9 @@ const Register = () => {
                     </Button>
                 </form>
 
-                <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }} textAlign="center">
+                <Typography variant="body1" color="text.secondary" sx={{mt: 2}} textAlign="center">
                     Already have an account?{" "}
-                    <Link to="/login" style={{ color: "text.primary", textDecoration: "underline" }}>
+                    <Link to="/login" style={{color: "text.primary", textDecoration: "underline"}}>
                         Log in
                     </Link>
                 </Typography>

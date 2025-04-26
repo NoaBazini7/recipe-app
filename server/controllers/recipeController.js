@@ -53,7 +53,7 @@ const getRecipesByIngredients = async (req, res) => {
         const allRecipes = await recipeService.getAllRecipes();
         const ingredientNames = req.body.ingredients;
         const filteredRecipes = allRecipes.filter((recipe) => {
-            console.log(recipe.matchedIngredients.map((ingredient) => ingredient.name));
+            // console.log(recipe.matchedIngredients.map((ingredient) => ingredient.name));
             const recipeIngredientNames = recipe.matchedIngredients.map((ingredient) => ingredient.name);
             return recipeIngredientNames.every((name) =>
                 ingredientNames.includes(name)
