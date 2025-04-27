@@ -5,8 +5,10 @@ const Recipe = require('../models/recipe'); // adjust path
 const fetchUSDAData = require('./utils/fetchUSDA'); // your function
 const normalizeIngredient = require('./utils/normalize'); // your cleaner
 const connectDB = require('../config/db');
+const categoryMap = require('./utils/ingredientCategoryMap'); // your map
 
 let notFoundCounter = 0;
+const categoryCounter = {}; // 🆕 track categories
 
 async function seedRecipes() {
     await connectDB();
@@ -29,14 +31,21 @@ async function seedRecipes() {
             const normalizedName = normalizeIngredient(rawIngredient);
             if (!normalizedName) continue;
 
-            let ingredientDoc = await Ingredient.findOne({ name: new RegExp(`^${normalizedName}$`, 'i') });
+            let ingredientDoc = await Ingredient.findOne({name: new RegExp(`^${normalizedName}$`, 'i')});
 
             if (!ingredientDoc) {
                 ingredientDoc = await fetchUSDAData(normalizedName);
                 if (ingredientDoc.category === "Unknown") {
                     notFoundCounter++;
                 }
+
+                ingredientDoc.category = categoryMap.get(ingredientDoc.category) || ingredientDoc.category;
                 ingredientDoc = await Ingredient.create(ingredientDoc); // Now we have the _id
+            }
+
+            // 🆕 Update the category counter
+            if (ingredientDoc.category) {
+                categoryCounter[ingredientDoc.category] = (categoryCounter[ingredientDoc.category] || 0) + 1;
             }
 
             matchedIngredients.push({
@@ -67,6 +76,13 @@ async function seedRecipes() {
 
     console.log('🎉 Done seeding recipes with enriched ingredients!');
     console.log(`❌ Not found ingredients (unknown category): ${notFoundCounter}`);
+
+    // 🆕 Print the category summary
+    console.log('\n📊 Ingredient Categories Summary:');
+    for (const [category, count] of Object.entries(categoryCounter)) {
+        console.log(`- ${category}: ${count} ingredients`);
+    }
+
     await mongoose.disconnect();
 }
 

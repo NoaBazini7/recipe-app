@@ -5,12 +5,13 @@ const packagingWords = [
     "slices", "slice", "teaspoons", "tablespoons", "teaspoon", "tablespoon",
     "inch", "inches", "fl", "oz", "ozs", "chunk", "chunks", "square", "squares",
     "piece", "pieces", "dash", "dashes", "bags", "bag", "bunch", "bunches",
-    "bite size", "bites", "pints", "pint", "part", "quart", "quarts", "envelopes",
+    "bite-size", "bites", "pints", "pint", "part", "quart", "quarts", "envelopes",
     "envelope", "bite sized", "carton", "cartons", "heads", "head", "ring", "rings",
     "drop", "drops", "gallon", "gallons", "jar", "jars", "milliliters", "milliliter",
     "bottle", "bottles", "fluid", "liters", "liter", "round", "rounds", "trays", "tray",
     "bunch", "box", "boxes", "strip", "floret", "florets", "ears", "ear", "bite-sized",
-    "old bay", "in bias", "hillshire farm rope", "tops",
+    "old bay", "in bias", "hillshire farm rope", "tops", "portions", "portion", "pieces",
+
 
 ];
 
@@ -29,14 +30,14 @@ const descriptorWords = [
     "very", "stewed", "broken in half", "split", "white lily", "cholula", "ball park", "crisp", "crisps",
     "more", "if", "as", "needed", "sharp", "to taste", "for frying", "with lime juice and cilantro (such as Rotel)",
     "with", "heart toothpick", "(such as Red Gold)", "from concentrate", "of excess fat", "for garnish",
-    "for serving", "tops seeds membranes removed", "cold", "freshly", "for rolling", "casings removed",
+    "for serving", "membranes", "seeds removed", "cold", "freshly", "for rolling", "casings removed",
     "warmed", "until liquid", "cooled", "at room temperature", "for dusting", "king arthur", "boiling", "pressed",
     "stemmed", "to", "for greasing", "for dusting pan", "pureed", "hulled", "chilled", "tails on",
-    "seeds removed", "desired", "cover", "diagonally", "to portion", "zest", "zested", "equal",
-    "discarded leaf", "pure", "morton", "broken in half", "food", "from", "chipotle pepper",
-    "for coating", "pan", "campbell's", "ez peel type", "shells down the back", "fully", "jimmy dean",
-    "flanken across bone", "tiny", "frank's redhot", "tabasco", "valentina", "tails removed", "tail", "left on",
-    "husked", "thirds", "white green parts",
+    "desired", "cover", "diagonally", "to portion", "zest", "zested", "equal", "discarded leaf", "pure",
+    "morton", "broken in half", "food", "from", "chipotle pepper", "for coating", "pan", "campbell's",
+    "EZ peel type", "shells down the back", "fully", "jimmy dean", "flanken across bone", "tiny", "frank's redhot",
+    "tabasco", "valentina", "tails removed", "tail", "left on", "husked", "thirds", "white green parts", "membranes",
+    "broken",
 ];
 
 const ingredientsMap = {
@@ -53,12 +54,37 @@ const ingredientsMap = {
     "gluten free chicken broth": "chicken broth",
     "pork beans": "pork and beans can",
     "italian style salad dressing mix": "italian style salad dressing",
-    //garlic cloves
     "hard egg": "eggs",
     "hard eggs": "eggs",
     "hot water": "water",
     "chipotle chilies in adobo sauce": "chipotle peppers in adobo sauce",
     "adobo sauce chipotle peppers": "chipotle peppers in adobo sauce",
+    "all purpose wheat flour": "all purpose flour",
+    "avocado": "avocado",
+    "banana": "bananas",
+    "carrot": "carrots",
+    "chicken breast meat": "chicken breast",
+    "chicken meat": "chicken",
+    "cloves cloves garlic": "garlic",
+    "cloves garlic": "garlic",
+    "cooking spray oil": "cooking spray",
+    "dill": "dill pickle",
+    "dijon style mustard": "dijon mustard",
+    "dried thyme": "dried thyme leaves",
+    "egg": "eggs",
+    "egg white": "eggs",
+    "egg whites": "eggs",
+    "egg yolk": "eggs",
+    "egg yolks": "eggs",
+    "half half": "half and half cream",
+    "half half cream": "half and half cream",
+    "kernel sweet corn": "kernel corn",
+    "leaf lettuce dried": "lettuce",
+    "leaf lettuce": "lettuce",
+    "lime": "limes",
+    "limes in": "limes",
+    "lime juice": "limes",
+    "of ginger": "ginger",
 
 
 }
@@ -125,6 +151,10 @@ const normalizeIngredient = (raw) => {
 
     ingredient = normalize(ingredient); // Normalize the ingredient name
     //ingredient = normalizePlural(ingredient); // Normalize plural forms
+
+    if (ingredientsMap[ingredient]) {
+        ingredient = ingredientsMap[ingredient];
+    }
 
 
     return ingredient;
