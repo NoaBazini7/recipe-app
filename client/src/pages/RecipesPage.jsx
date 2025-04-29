@@ -94,7 +94,7 @@ const RecipesPage = () => {
                                         <Button
                                             variant="outlined"
                                             fullWidth
-                                            onClick={() => navigate(`/recipe/${recipe._id}`)}
+                                            onClick={() => navigate(`/recipe/${recipe._id}`, { state: { recipes } })}
                                         >
                                             View Recipe
                                         </Button>

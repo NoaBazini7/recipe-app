@@ -7,7 +7,7 @@ import Profile from "./pages/ProfilePage.jsx";
 import WelcomePage from "./pages/WelcomePage.jsx";
 import RecipesPage from "./pages/RecipesPage.jsx";
 import UserPage from "./pages/UserPage.jsx";
-
+import RecipeDetail from './pages/RecipeDetail.jsx';
 
 function App() {
     return (
@@ -18,6 +18,7 @@ function App() {
             <Route path="/profile" element={<Profile/>}/>
             <Route path="/recipes" element={<RecipesPage/>}/>
             {<Route path="/user" element={<UserPage/>}/>}
+            {<Route path="/recipe/:id" element={<RecipeDetail/>}/>}
             {/*<Route path="/" element={<Ingredients />} />*/}
             <Route path="*" element={<NotFound/>}/>
         </Routes>
