@@ -1,6 +1,6 @@
 const axios = require("axios");
 const Ingredient = require("../../models/ingredient");
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+require('dotenv').config({path: require('path').resolve(__dirname, '../../.env')});
 const API_KEY = process.env.USDA_API_KEY; // Ensure you have this in your .env file
 console.log("Using API Key:", API_KEY); // Just to check if it loads
 
@@ -26,14 +26,15 @@ async function fetchUSDAData(searchName) {
                 category: "Unknown",
                 kosher: true,
                 description: "No description available",
-                caloriesPer100g: 0
+                caloriesPer100g: 0,
+                isCommon: false
             });
         }
 
         // Step 3: Extract category & calories
         const usdaData = usdaResponse.data.foods[0]; // Best match
-        const category = usdaData.foodCategory||"Unknown";
-        const calories = usdaData.foodNutrients?.find(n => (n.nutrientName.includes("Energy"))&&n.unitName==="KCAL")?.value || 0;
+        const category = usdaData.foodCategory || "Unknown";
+        const calories = usdaData.foodNutrients?.find(n => (n.nutrientName.includes("Energy")) && n.unitName === "KCAL")?.value || 0;
 
 
         // Step 4: Save to MongoDB
@@ -42,7 +43,8 @@ async function fetchUSDAData(searchName) {
                 category: category,
                 kosher: true,
                 description: usdaData.description,
-                caloriesPer100g: calories
+                caloriesPer100g: calories,
+                isCommon: false
             }
         );
 

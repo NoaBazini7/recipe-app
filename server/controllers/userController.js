@@ -59,4 +59,44 @@ const changePassword = async (req, res) => {
     }
 };
 
-module.exports = {getAllUsers, getUserById, createUser, updateUser, deleteUser, changePassword};
+const addRecipeToList = async (req, res) => {
+    try {
+        const updatedUser = await userService.addRecipeToList(req.body.username, req.body.recipeID, req.body.listName);
+        if (!updatedUser) return res.status(404).json({error: "User not found"});
+        res.json(updatedUser);
+    } catch (err) {
+        res.status(400).json({error: err.message});
+    }
+};
+
+const removeRecipeFromList = async (req, res) => {
+    try {
+        const updatedUser = await userService.removeRecipeFromList(req.body.username, req.body.recipeID, req.body.listName);
+        if (!updatedUser) return res.status(404).json({error: "User not found"});
+        res.json(updatedUser);
+    } catch (err) {
+        res.status(400).json({error: err.message});
+    }
+}
+
+const fetchSavedRecipes = async (req, res) => {
+    try {
+        const user = await userService.getUserByUsername(req.params.username);
+        if (!user) return res.status(404).json({error: "User not found"});
+        res.json(user.recipeLists);
+    } catch (err) {
+        res.status(500).json({error: err.message});
+    }
+};
+
+module.exports = {
+    getAllUsers,
+    getUserById,
+    createUser,
+    updateUser,
+    deleteUser,
+    changePassword,
+    addRecipeToList,
+    removeRecipeFromList,
+    fetchSavedRecipes
+};

@@ -11,6 +11,7 @@ const packagingWords = [
     "bottle", "bottles", "fluid", "liters", "liter", "round", "rounds", "trays", "tray",
     "bunch", "box", "boxes", "strip", "floret", "florets", "ears", "ear", "bite-sized",
     "old bay", "in bias", "hillshire farm rope", "tops", "portions", "portion", "pieces",
+    "stalk", "stalks",
 
 
 ];
@@ -37,7 +38,8 @@ const descriptorWords = [
     "morton", "broken in half", "food", "from", "chipotle pepper", "for coating", "pan", "campbell's",
     "EZ peel type", "shells down the back", "fully", "jimmy dean", "flanken across bone", "tiny", "frank's redhot",
     "tabasco", "valentina", "tails removed", "tail", "left on", "husked", "thirds", "white green parts", "membranes",
-    "broken",
+    "broken", "boneless", "skinless", "skin on", "bone in", "miniature", "on the diagonal", "snipped", "in bias",
+    "deep dish",
 ];
 
 const ingredientsMap = {
@@ -84,9 +86,70 @@ const ingredientsMap = {
     "lime": "limes",
     "limes in": "limes",
     "lime juice": "limes",
+    "lemon": "lemons",
     "of ginger": "ginger",
-
-
+    "white sugar": "sugar",
+    "bread": "white bread",
+    "potato": "potatoes",
+    "sweet potato": "sweet potatoes",
+    "steaks": "beef steak",
+    "beef sirloin beef steaks": "sirloin steak",
+    "beef sirloin": "sirloin steak",
+    "beef eye of roast": "round steak",
+    "beef chuck roast": "chuck steak",
+    "beef chuck": "chuck steak",
+    "flat corned beef brisket": "corned beef brisket",
+    "corned beef brisket spice": "corned beef brisket",
+    "beef shank bone": "beef shank",
+    "ground pork sausage": "pork sausage",
+    "pork picnic roast": "pork roast",
+    "pork tenderloin": "pork tenderloins",
+    "chicken bouillon granules": "chicken bouillon",
+    "chicken breast": "chicken breasts",
+    "chicken stock": "chicken broth",
+    "chicken breast bite size": "chicken breasts",
+    "black soy sauce": "soy sauce",
+    "dark soy sauce": "soy sauce",
+    "chile garlic sauce": "chili garlic sauce",
+    "barbecue sauce": "bbq sauce",
+    "barbeque sauce": "bbq sauce",
+    "sriracha chili garlic sauce": "sriracha sauce",
+    "hot pepper sauce": "hot sauce",
+    "rag old world style traditional sauce": "ragu sauce",
+    "crisco original no stick cooking spray": "cooking spray",
+    "nonstick cooking spray": "cooking spray",
+    "nonstich spray": "cooking spray",
+    "serving nonstick cooking spray": "cooking spray",
+    "wheat bread crumbs": "bread crumbs",
+    "italian seasoned bread crumbs": "seasoned bread crumbs",
+    "gluten free vanilla extract": "vanilla extract",
+    "sea salt": "kosher salt",
+    "fine table salt": "salt",
+    "seasoning salt": "seasoned salt",
+    "coarse sea salt": "kosher salt",
+    "fine sea salt": "salt",
+    "lemon lime flavored carbonated beverage": "lime soda",
+    "raw shrimp shelled tails attached": "shrimp",
+    "shrimp tails attached": "shrimp",
+    "colossal shrimp ez peel type": "colossal shrimp",
+    "orange": "oranges",
+    "onion": "onions",
+    "ranch salad dressing mix": "ranch dressing",
+    "ranch dressing mix": "ranch dressing",
+    "red bell pepper": "red bell peppers",
+    "red pepper": "red bell peppers",
+    "red peppers": "red bell peppers",
+    "red yellow bell pepper": "red bell peppers",
+    "skin on bone in chicken thighs": "chicken thighs",
+    "leeks": "leeks",
+    "oil": "vegetable oil",
+    "tomatoes green chile peppers": "diced tomatoes and green chiles",
+    "tomatoes green chiles": "diced tomatoes and green chiles",
+    "tomatoes lime juice cilantro": "diced tomatoes with lime juice and cilantro",
+    "tomato": "tomatoes",
+    "white brown rice": "white rice",
+    "red coloring": "red food coloring",
+    "green coloring": "green food coloring",
 }
 
 // Build regex patterns
@@ -135,27 +198,32 @@ function normalizePlural(ingredientName) {
     return words.join(" ");
 }
 
-// Assuming you already have something like this:
 const normalizeIngredient = (raw) => {
     let ingredient = raw.toLowerCase().trim();
 
     // Remove fractions like 1 ½, 1/4, etc.
-    ingredient = ingredient.replace(/(\d+(\s?\/\s?\d+)?(\s?½)?)/g, '').trim();  // This removes any fractions
+    ingredient = ingredient.replace(/(\d+(\s?\/\s?\d+)?(\s?½)?)/g, '').trim();
 
     // Remove any quantity numbers (e.g., "2", "1", "½")
     ingredient = ingredient.replace(/^\d+(\.\d+)?(\s?½)?\s?/g, '').trim();
 
     ingredient = ingredient.replace(packagingRegex, '')
         .replace(descriptorRegex, '')
-        .trim();// Remove adjectives like "Large", "Medium", "Small", etc.
+        .trim();
 
-    ingredient = normalize(ingredient); // Normalize the ingredient name
-    //ingredient = normalizePlural(ingredient); // Normalize plural forms
+    ingredient = normalize(ingredient);
 
+    // Check for "salt" and "pepper" in the ingredient name
+    if (ingredient.includes("salt") && ingredient.includes("pepper")) {
+        if (ingredient.includes("kosher"))
+            return ["kosher salt", "ground black pepper"];
+        return ["salt", "ground black pepper"];
+    }
+
+    // Map to normalized ingredient if it exists
     if (ingredientsMap[ingredient]) {
         ingredient = ingredientsMap[ingredient];
     }
-
 
     return ingredient;
 };

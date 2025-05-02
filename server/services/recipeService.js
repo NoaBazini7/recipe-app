@@ -4,8 +4,9 @@ const getAllRecipes = async () => {
     return Recipe.find(); // Fetches all recipes
 };
 
-const getRecipeById = async (id) => {
-    return Recipe.findById(id); // Fetches a recipe by ID
+const getRecipeById = async (recipeIds) => {
+    const recipes = await Recipe.find({_id: {$in: recipeIds}});
+    return recipes; // Fetches recipes by IDs
 };
 
 const addRecipe = async (recipeData) => {

@@ -1,7 +1,6 @@
 import React, {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Box, Button, Card, CardContent, CardMedia, Grid, IconButton, Stack, Typography,} from "@mui/material";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HomeIcon from "@mui/icons-material/Home";
 import "../App.css";
 
@@ -13,7 +12,7 @@ const RecipesPage = () => {
     const [recipes] = useState(recipesFromState);
 
     return (
-        <Box sx={{overflow: "auto", px: 4, pt: 10, pb: 6}}>
+        <Box sx={{px: 4, pt: 10, pb: 6, height: "100vh",}}>
             <Box
                 sx={{
                     position: "fixed",
@@ -26,6 +25,8 @@ const RecipesPage = () => {
                     borderBottom: "3px solid",
                     borderColor: "text.secondary",
                     backgroundColor: "background.paper",
+
+
                 }}
             >
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -36,9 +37,7 @@ const RecipesPage = () => {
                         <IconButton onClick={() => navigate("/profile")}>
                             <HomeIcon sx={{fontSize: 30, color: "text.secondary"}}/>
                         </IconButton>
-                        <IconButton onClick={() => navigate("/user")}>
-                            <AccountCircleIcon sx={{fontSize: 30, color: "text.secondary"}}/>
-                        </IconButton>
+
                     </Box>
                 </Stack>
             </Box>
@@ -48,7 +47,7 @@ const RecipesPage = () => {
                     No recipes found 😔
                 </Typography>
             ) : (
-                <Grid container spacing={4} justifyContent="center" mt={2}>
+                <Grid container spacing={4} justifyContent="center" mt={2} pb={2}>
                     {recipes.map((recipe) => (
                         <Grid item xs={12} sm={6} md={4} lg={3} key={recipe._id}>
                             <Card
@@ -94,7 +93,7 @@ const RecipesPage = () => {
                                         <Button
                                             variant="outlined"
                                             fullWidth
-                                            onClick={() => navigate(`/recipe/${recipe._id}`, { state: { recipes } })}
+                                            onClick={() => navigate(`/recipe/${recipe._id}`, {state: {recipes}})}
                                         >
                                             View Recipe
                                         </Button>

@@ -14,4 +14,10 @@ router.delete("/delete", userController.deleteUser);
 
 router.put("/change-password", userController.changePassword);
 
+router.post("/add-recipe", userController.addRecipeToList);
+
+router.post("/remove-recipe", userController.removeRecipeFromList);
+
+router.get("/saved-recipes", userController.fetchSavedRecipes);
+
 module.exports = router;

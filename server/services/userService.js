@@ -56,6 +56,49 @@ const changePassword = async (userId, oldPassword, newPassword) => {
     return user;
 }
 
+const addRecipeToList = async (username, recipeID, listName) => {
+    const user = await getUserByUsername(username);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    const listIndex = user.recipeLists.findIndex((list) => list.title === listName);
+
+    if (listIndex !== -1) {
+        // ✅ List exists, modify in-place
+        if (!user.recipeLists[listIndex].recipes.includes(recipeID)) {
+            user.recipeLists[listIndex].recipes.push(recipeID);
+        }
+    } else {
+        // ✅ List doesn't exist, create it
+        user.recipeLists.push({
+            title: listName,
+            recipes: [recipeID],
+        });
+    }
+    await user.save();
+    return user;
+};
+
+const removeRecipeFromList = async (username, recipeID, listName) => {
+    const user = await getUserByUsername(username);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    const listIndex = user.recipeLists.findIndex((list) => list.title === listName);
+
+    if (listIndex !== -1) {
+        // ✅ List exists, modify in-place
+        const recipeIndex = user.recipeLists[listIndex].recipes.indexOf(recipeID);
+        if (recipeIndex !== -1) {
+            user.recipeLists[listIndex].recipes.splice(recipeIndex, 1);
+        }
+    } else {
+        throw new Error("List not found");
+    }
+    await user.save();
+    return user;
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -64,5 +107,7 @@ module.exports = {
     updateUser,
     deleteUser,
     checkPassword,
-    changePassword
+    changePassword,
+    addRecipeToList,
+    removeRecipeFromList,
 };

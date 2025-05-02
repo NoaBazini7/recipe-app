@@ -111,78 +111,52 @@ export function IngredientsList({ingredients, onClick}) {
     }, [filteredIngredients]);
 
     return (
-        <Box sx={{display: "flex", width: "100%", height: "55vh",}}>
+        <Box sx={{
+            display: "flex",
+            flexDirection: "column",
 
-            <Box sx={{
-                alignItems: "center",
-                display: "flex",
-                flexDirection: "column",
+            width: "60vw",
+            height: "65vh",
+            border: "1px solid",
+            borderColor: "text.primary",
+            borderRadius: 1,
+            padding: 2,
+            boxShadow: 2, // optional: adds a soft shadow
+            backgroundColor: "background.paper", // optional: ensures it’s not transparent
 
-            }}>
+        }}>
 
-                <TextField
-                    variant="outlined"
-                    placeholder="Search ingredients..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    sx={{
-                        mb: 3,
-                        mt: 1,
-                        width: "70%",
-                    }}
-                />
-
-                <AutoSizer disableWidth={true}>
-                    {({height}) => (
-                        <Box
-                            sx={{
-                                height,
-                                width: "100%",
-                                display: "flex",
-                                flexDirection: "row",
-                                "& .custom-scroll::-webkit-scrollbar": {
-                                    width: 9,
-
-                                },
-                                "& .custom-scroll::-webkit-scrollbar-track": {
-                                    backgroundColor: "background.paper",
-                                    borderRadius: 3,
-                                    border: "2px solid",
-                                    borderColor: "text.primary",
-
-                                },
-                                "& .custom-scroll::-webkit-scrollbar-thumb": {
-                                    backgroundColor: "text.primary",
-                                    borderRadius: 9,
-                                    minHeight: 40,
-                                },
-                                "& .custom-scroll::-webkit-scrollbar-thumb:hover": {
-                                    backgroundColor: "text.secondary",
-                                },
-                                "& .custom-scroll::-webkit-scrollbar-button": {
-                                    display: "none",
-                                    height: 0,
-                                    width: 0,
-                                },
-                            }}
-                        >
+            <TextField
+                variant="outlined"
+                placeholder="Search ingredients..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={{
+                    mb: 3,
+                    mt: 1,
+                    width: "70%",
+                    mx: "auto",
+                }}
+            />
+            <Box sx={{flex: 1, minHeight: 0, display: "flex"}}>
+                <AutoSizer>
+                    {({height, width}) => (
+                        <Box sx={{display: "flex", width, height}}>
                             <AlphabetSidebar onLetterClick={handleLetterClick}/>
                             <Grid
                                 ref={gridRef}
-                                className="custom-scroll"
                                 columnCount={COLUMN_COUNT}
                                 columnWidth={ITEM_WIDTH}
                                 height={height}
                                 rowCount={itemData.length}
                                 rowHeight={CHIP_HEIGHT + 16}
-                                width={ITEM_WIDTH * COLUMN_COUNT + 20}
+                                width={width - 60} // subtract sidebar width if needed
                             >
                                 {Cell}
                             </Grid>
                         </Box>
                     )}
                 </AutoSizer>
-
             </Box>
         </Box>
     );

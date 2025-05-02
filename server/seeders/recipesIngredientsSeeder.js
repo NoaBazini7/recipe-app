@@ -9,6 +9,7 @@ const categoryMap = require('./utils/ingredientCategoryMap'); // your map
 
 let notFoundCounter = 0;
 const categoryCounter = {}; // 🆕 track categories
+const mapOfCommons = new Map([]);
 
 async function seedRecipes() {
     await connectDB();
@@ -28,30 +29,42 @@ async function seedRecipes() {
         const matchedIngredients = [];
 
         for (const rawIngredient of rawRecipe.ingredients) {
-            const normalizedName = normalizeIngredient(rawIngredient);
-            if (!normalizedName) continue;
+            const normalizedNames = normalizeIngredient(rawIngredient);
 
-            let ingredientDoc = await Ingredient.findOne({name: new RegExp(`^${normalizedName}$`, 'i')});
+            const ingredientNames = Array.isArray(normalizedNames) ? normalizedNames : [normalizedNames];
 
-            if (!ingredientDoc) {
-                ingredientDoc = await fetchUSDAData(normalizedName);
-                if (ingredientDoc.category === "Unknown") {
-                    notFoundCounter++;
+            for (const normalizedName of ingredientNames) {
+
+                if (!normalizedName) continue;
+
+                let ingredientDoc = await Ingredient.findOne({name: new RegExp(`^${normalizedName}$`, 'i')});
+
+                if (!ingredientDoc) {
+                    ingredientDoc = await fetchUSDAData(normalizedName);
+
+                    //adding to the map of commons
+                    mapOfCommons.set(ingredientDoc.name, 1);
+
+                    if (ingredientDoc.category === "Unknown") {
+                        notFoundCounter++;
+                    }
+
+                    ingredientDoc.category = categoryMap.get(ingredientDoc.category) || ingredientDoc.category;
+                    ingredientDoc = await Ingredient.create(ingredientDoc); // Now we have the _id
+                } else {
+                    mapOfCommons.set(ingredientDoc.name, mapOfCommons.get(ingredientDoc.name) + 1);
                 }
 
-                ingredientDoc.category = categoryMap.get(ingredientDoc.category) || ingredientDoc.category;
-                ingredientDoc = await Ingredient.create(ingredientDoc); // Now we have the _id
-            }
+                // 🆕 Update the category counter
+                if (ingredientDoc.category) {
+                    categoryCounter[ingredientDoc.category] = (categoryCounter[ingredientDoc.category] || 0) + 1;
+                }
 
-            // 🆕 Update the category counter
-            if (ingredientDoc.category) {
-                categoryCounter[ingredientDoc.category] = (categoryCounter[ingredientDoc.category] || 0) + 1;
+                matchedIngredients.push({
+                    _id: ingredientDoc._id,
+                    name: ingredientDoc.name
+                });
             }
-
-            matchedIngredients.push({
-                _id: ingredientDoc._id,
-                name: ingredientDoc.name
-            });
         }
 
         await Recipe.create({
@@ -82,6 +95,27 @@ async function seedRecipes() {
     for (const [category, count] of Object.entries(categoryCounter)) {
         console.log(`- ${category}: ${count} ingredients`);
     }
+
+
+    // 🔝 Get top 100 most common ingredients
+    const topIngredients = Array.from(mapOfCommons.entries())
+        .sort((a, b) => b[1] - a[1]) // sort by frequency descending
+        .slice(0, 100) // take top 50
+        .map(([name]) => name); // extract only the names
+
+    console.log('\n🔥 Marking top 100 ingredients as common...');
+    console.log('Top 100 ingredients:', topIngredients);
+
+// 📝 Update each one in MongoDB
+    await Promise.all(topIngredients.map(async (ingredientName) => {
+        await Ingredient.findOneAndUpdate(
+            {name: new RegExp(`^${ingredientName}$`, 'i')}, // case-insensitive match
+            {isCommon: true}
+        );
+    }));
+
+    console.log('✅ Top 100 ingredients marked as isCommon!');
+
 
     await mongoose.disconnect();
 }
