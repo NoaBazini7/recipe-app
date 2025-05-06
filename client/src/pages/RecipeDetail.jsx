@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {Box, Button, Card, CardContent, CardMedia, List, ListItem, Stack, Typography} from "@mui/material";
+import {Box, Button, Card, CardContent, CardMedia, List, Popover,ListItem, Stack, Typography} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {AnimatePresence, motion} from "framer-motion"
 import axios from "axios";
+import StarIcon from "@mui/icons-material/Star";
 import {useUser} from "../contexts/UserContext.jsx";
 
 
@@ -16,9 +17,9 @@ const RecipeDetailPage = () => {
     const {user, updateUser} = useUser();
     const [showSaveMenu, setShowSaveMenu] = useState(false);
     const [newListName, setNewListName] = useState("");
-
-    const [activeTab, setActiveTab] = useState("ingredients");
     const [saved, setSaved] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [selectedIngredient, setSelectedIngredient] = useState('');
 
     // Check if the recipe is already saved
     useEffect(() => {
@@ -95,126 +96,220 @@ const RecipeDetailPage = () => {
                 borderRadius: 2,
                 boxShadow: 10,
                 position: "relative",
-                width: 500,
-                height: "95vh",
+                width: "100%",
+                maxWidth: 1000,
+                display: "flex",
+                flexDirection: "row",
+                height: "auto",
+                mt:8,
+                boxSizing: "border-box",
+                padding: 2
             }}>
-                {recipe.imageUrl && recipe.imageUrl.startsWith("http") && (
-                    <CardMedia
-                        component="img"
-                        height="300"
-                        alt={recipe.title}
-                        image={recipe.imageUrl}
-                        sx={{objectFit: "cover"}}
-                    />
-                )}
-
-                <CardContent sx={{display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 200}}>
-                    <Typography variant="h4" gutterBottom sx={{fontSize: "1.5rem"}}>
+                <CardContent sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    boxSizing: "border-box",
+                    p: 1,
+                    overflow: "hidden",
+                    maxWidth: "70%",
+                    height: "auto",
+                }}>
+                    <Typography variant="h4" gutterBottom sx={{ fontSize: "1.25rem" }}>
                         {recipe.title}
                     </Typography>
 
-                    <Typography variant="h6" color="text.secondary" gutterBottom sx={{fontSize: "0.875rem"}}>
+                    <Typography variant="h6" color="text.secondary" gutterBottom sx={{ fontSize: "0.875rem" }}>
                         {recipe.category}
                     </Typography>
 
-                    <Typography variant="body2" gutterBottom sx={{fontSize: "0.75rem"}}>
-                        Total time: {recipe.total_time}
+                    {/* Steps */}
+                    <Typography variant="h6" sx={{ mt: 1}}>
+                        Instructions
                     </Typography>
 
-
-                    {recipe.calories && (
-                        <Typography variant="body2" gutterBottom sx={{fontSize: "0.75rem"}}>
-                            Calories per serving: {recipe.calories}
+                    {recipe.steps?.length > 0 ? (
+                        <List dense sx={{ marginTop: 2 }}>
+                            {recipe.steps.map((step, index) => (
+                                <ListItem key={index} sx={{ alignItems: "flex-start", py: 0.5 }}>
+                                    <Typography variant="body2" sx={{ fontSize: "0.875rem", mb: 1 }}>
+                                        {index + 1}. {step}
+                                    </Typography>
+                                </ListItem>
+                            ))}
+                        </List>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary">
+                            No instructions provided.
                         </Typography>
                     )}
 
-                    <Stack direction="row" spacing={2} sx={{mt: 3}}>
-                        <Button
-                            variant={activeTab === "ingredients" ? "contained" : "outlined"}
-                            onClick={() => setActiveTab("ingredients")}
-                            sx={{
-                                flex: 1,
-                                fontWeight: activeTab === "ingredients" ? "bold" : "normal",
-                                backgroundColor: activeTab === "ingredients" ? "text.primary" : "primary.main",
-                                color: activeTab === "ingredients" ? "primary.main" : "text.primary",
-                                '&:hover': {
-                                    backgroundColor: activeTab === "ingredients" ? "text.secondary" : "text.secondary"
-                                }
-                            }}
-                        >
-                            Ingredients
-                        </Button>
-                        <Button
-                            variant={activeTab === "instructions" ? "contained" : "outlined"}
-                            onClick={() => setActiveTab("instructions")}
-                            sx={{
-                                flex: 1,
-                                fontWeight: activeTab === "instructions" ? "bold" : "normal",
-                                backgroundColor: activeTab === "instructions" ? "text.primary" : "primary.main",
-                                color: activeTab === "instructions" ? "primary.main" : "text.primary",
-                                '&:hover': {
-                                    backgroundColor: activeTab === "instructions" ? "text.secondary" : "text.secondary"
-                                }
-                            }}
-                        >
-                            Instructions
-                        </Button>
-                    </Stack>
+                    {/* Ingredients */}
+                    <Typography variant="h6" sx={{ mt: 2 }}>
+                        Ingredients
+                    </Typography>
 
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeTab}
-                            initial={{opacity: 0, x: 50}}
-                            animate={{opacity: 1, x: 0}}
-                            exit={{opacity: 0, x: -50}}
-                            transition={{duration: 0.3}}
-                            style={{width: "100%", position: "relative", minHeight: 150, overflowY: "auto"}}
-                        >
-                            {activeTab === "ingredients" ? (
-                                <Box sx={{mt: 2, maxHeight: 200, overflowY: "auto", pr: 1}}>
-                                    {recipe.rawIngredients?.length > 0 ? (
-                                        <List dense>
-                                            {recipe.rawIngredients.map((ingredient, index) => (
-                                                <ListItem key={index} sx={{py: 0}}>
-                                                    <Typography variant="body2" sx={{fontSize: "0.875rem"}}>
-                                                        • {ingredient}
-                                                    </Typography>
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    ) : (
-                                        <Typography variant="body2" color="text.secondary">
-                                            No ingredients provided.
-                                        </Typography>
-                                    )}
-                                </Box>
-                            ) : (
-                                <Box sx={{mt: 2, maxHeight: 200, overflowY: "auto", pr: 1}}>
-                                    {recipe.steps?.length > 0 ? (
-                                        <List dense>
-                                            {recipe.steps.map((step, index) => (
-                                                <ListItem key={index} sx={{alignItems: "flex-start", py: 0.5}}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{fontSize: "0.875rem", mb: 1}}
-                                                    >
-                                                        {index + 1}. {step}
-                                                    </Typography>
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    ) : (
-                                        <Typography variant="body2" color="text.secondary">
-                                            No instructions provided.
-                                        </Typography>
-                                    )}
-                                </Box>
-                            )}
+                    {recipe.servings && (
+                        <Typography variant="body2" gutterBottom sx={{ fontSize: "0.75rem" }}>
+                            (for {recipe.servings} servings)
+                        </Typography>
+                    )}
 
-                        </motion.div>
-                    </AnimatePresence>
+                    <Box sx={{ width: "100%", mt: 1 }}>
+                        {recipe.rawIngredients?.length > 0 ? (
+                            <>
+                                <List dense sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                    {recipe.rawIngredients.map((ingredient, index) => (
+                                        <ListItem
+                                            key={index}
+                                            button
+                                            onClick={(event) => {
+                                                setAnchorEl(event.currentTarget);
+                                                setSelectedIngredient(ingredient);
+                                            }}
+                                            sx={{
+                                                width: { xs: "100%", sm: "48%", md: "30%" },
+                                                py: 0,
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
+                                                • {ingredient}
+                                            </Typography>
+                                        </ListItem>
+                                    ))}
+                                </List>
+
+                                <Popover
+                                    open={Boolean(anchorEl)}
+                                    anchorEl={anchorEl}
+                                    onClose={() => setAnchorEl(null)}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'left',
+                                    }}
+                                >
+                                    <Box sx={{ p: 2 }}>
+                                        <Typography variant="subtitle1">{selectedIngredient}</Typography>
+                                        <Typography variant="body2">Calories: 100</Typography>
+                                        <Typography variant="body2">Category: Vegetable</Typography>
+                                        <Typography variant="body2">Kosher: ✔</Typography>
+                                    </Box>
+                                </Popover>
+                            </>
+                        ) : (
+                            <Typography variant="body2" color="text.secondary">
+                                No ingredients provided.
+                            </Typography>
+                        )}
+                    </Box>
                 </CardContent>
+
+                {/* right part: image with details*/}
+                <Box sx={{
+                    width: "100%",
+                    maxWidth: "75vh",
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    height: "auto",
+                    boxSizing: "border-box"
+                }}>
+                    {recipe.imageUrl && recipe.imageUrl.startsWith("http") && (
+                        <CardMedia
+                            component="img"
+                            alt={recipe.title}
+                            image={recipe.imageUrl}
+                            sx={{
+                                objectFit: "cover",
+                                width: "100%",
+                                height: "50%",
+                                borderRadius: 2,
+                                mb: 2
+                            }}
+                        />
+                    )}
+                    {/* Calories */}
+                    {recipe.calories && (
+                        <Box sx={{ mb: 3 }}>
+                            <Typography variant="h6" sx={{ fontSize: "0.875rem"}}>
+                                Calories: {recipe.calories} per serving
+                            </Typography>
+                        </Box>
+                    )}
+
+                    {/* Time */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3}}>
+                        <Box>
+                            <Typography variant="h2" sx={{ fontSize: "0.75rem" }}>
+                                Preparation:
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontSize: "0.5rem", mb: 1 }}>
+                                {recipe.prep_time}
+                            </Typography>
+                            <Typography variant="h2" sx={{ fontSize: "0.75rem" }}>
+                                Cooking:
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontSize: "0.5rem" }}>
+                                {recipe.cook_time}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ ml: 4 }}>
+                            <Typography variant="h2" sx={{ fontSize: "1rem" }} >
+                                Total time:
+                            </Typography>
+                            <Typography variant="h2" sx={{ fontSize: "1.5rem", color: "text.primary"}}>
+                                =  {recipe.total_time}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+
+
+                    {/* Rating and kosher */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
+                        {recipe.rating && (
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                                <StarIcon sx={{ fontSize: "1.75rem", color: "#fbc02d", mr: 0.5 }} />
+                                <Typography variant="h2" sx={{ fontSize: "0.75rem" }}>
+                                    {recipe.rating} / 5
+                                </Typography>
+                            </Box>
+                        )}
+
+                        {recipe.kosher !== undefined && (
+                            <Typography variant="h2" sx={{ fontSize: "1rem" }}>
+                                Kosher {recipe.kosher ? "✔" : "✘"}
+                            </Typography>
+                        )}
+                    </Box>
+                </Box>
             </Card>
+
+            {/* url to original website */}
+            <Box
+                sx={{
+                    width: "100%",
+                    pt: 1.5,
+                    textAlign: "center",
+                    mt: 0,
+                }}
+            >
+                <Typography variant="caption" color="text.secondary">
+                    For the full recipe:&nbsp;
+                    <a
+                        href={recipe.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'underline', color: 'text.primary' }}
+                    >
+                        {recipe.url}
+                    </a>
+                </Typography>
+            </Box>
+
 
             <Button
                 variant="outlined"
