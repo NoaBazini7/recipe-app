@@ -10,6 +10,19 @@ const categoryMap = require('./utils/ingredientCategoryMap'); // your map
 let notFoundCounter = 0;
 const categoryCounter = {}; // 🆕 track categories
 const mapOfCommons = new Map([]);
+const nonKosherKeywords = ['bacon', 'shrimp', 'pork', 'lobster', 'ham', 'crab', 'clam', 'oyster', 'gelatin', 'lard', 'pepperoni', 'squid', 'octopus', 'mollusk', 'shellfish', 'scallop', 'sardine', 'anchovy', 'caviar', 'catfish', 'sturgeon', 'eel', 'frog', 'rabbit', 'venison'];
+const dairyCategories = ['Dairy & Eggs'];
+const dairyKeywords = [
+    "milk", "butter", "cream", "cheese", "yogurt", "curd", "ghee",
+    "casein", "whey", "lactose", "custard", "mascarpone", "ricotta",
+    "sour cream", "creme", "dairy", "half and half", "milkfat",
+    "skimmed milk", "whole milk", "evaporated milk", "condensed milk", "buttermilk", "milk solids",
+    "chocolate", "truffle", "caramel", "ganache", "fudge", "nougat",
+    "toffee", "pudding", "mousse", "ice cream", "frosting", "glaze",
+    "icing", "danish", "croissant", "cheesecake", "tiramisu"
+];
+const meatCategories = ['Meat, Poultry & Pork'];
+
 
 async function seedRecipes() {
     await connectDB();
@@ -50,7 +63,13 @@ async function seedRecipes() {
                     }
 
                     ingredientDoc.category = categoryMap.get(ingredientDoc.category) || ingredientDoc.category;
-                    ingredientDoc = await Ingredient.create(ingredientDoc); // Now we have the _id
+
+
+                    const lowerName = ingredientDoc.name.toLowerCase();
+                    const isNonKosher = nonKosherKeywords.some(keyword => lowerName.includes(keyword));
+                    ingredientDoc.kosher = !isNonKosher;
+
+                    ingredientDoc = await Ingredient.create(ingredientDoc);
                 } else {
                     mapOfCommons.set(ingredientDoc.name, mapOfCommons.get(ingredientDoc.name) + 1);
                 }
@@ -67,6 +86,22 @@ async function seedRecipes() {
             }
         }
 
+        let isKosher = true;
+        let hasMeat = false;
+        let hasDairy = false;
+
+        for (const ing of matchedIngredients) {
+            const fullIngredient = await Ingredient.findById(ing._id);
+            if (!fullIngredient.kosher) isKosher = false;
+            if ((dairyCategories.includes(fullIngredient.category) && !(fullIngredient.name.toLowerCase()).includes("egg")) || (dairyKeywords.some(keyword =>
+                fullIngredient.name.toLowerCase().includes(keyword)))) hasDairy = true;
+            if (meatCategories.includes(fullIngredient.category)) hasMeat = true;
+        }
+
+        if (hasMeat && hasDairy) {
+            isKosher = false;
+        }
+
         await Recipe.create({
             title: rawRecipe.title,
             url: rawRecipe.url,
@@ -78,7 +113,7 @@ async function seedRecipes() {
             cook_time: rawRecipe.cook_time,
             total_time: rawRecipe.total_time,
             servings: rawRecipe.servings,
-            kosher: true,
+            kosher: isKosher,
             rawIngredients: rawRecipe.ingredients,
             matchedIngredients,
             steps: rawRecipe.steps,

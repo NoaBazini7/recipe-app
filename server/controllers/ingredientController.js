@@ -6,26 +6,42 @@ const getAllIngredients = async (req, res) => {
         const ingredients = await ingredientService.getAllIngredients();
         res.json(ingredients);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 };
 
-const getIngredientByName = async (req, res) => {
+// Example in Express.js controller
+const getIngredientsByName = async (req, res) => {
+    const names = req.query.names;
+
+    if (!Array.isArray(names)) {
+        return res.status(400).json({error: "names must be an array"});
+    }
+
     try {
-        const ingredient = await ingredientService.getIngredientByName(req.params.name);
-        if (!ingredient) return res.status(404).json({ error: "Ingredient not found" });
-        res.json(ingredient);
+        // Fetch all matching ingredients
+        const ingredients = await ingredientService.getIngredientsByName(names);
+
+        // Sort according to the order in the `names` array
+        const ingredientsMap = new Map();
+        ingredients.forEach(ing => ingredientsMap.set(ing.name.toLowerCase(), ing));
+
+        const sortedIngredients = names.map(name => ingredientsMap.get(name.toLowerCase()));
+
+        res.json(sortedIngredients);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err);
+        res.status(500).json({error: "Server error"});
     }
 };
+
 
 const addIngredient = async (req, res) => {
     try {
         const ingredient = await ingredientService.addIngredient(req.body);
         res.status(201).json(ingredient);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(400).json({error: err.message});
     }
 };
 
@@ -35,8 +51,8 @@ const getAllCategories = async (req, res) => {
         const categories = [...new Set(ingredients.map(ingredient => ingredient.category))];
         res.json(categories);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({error: err.message});
     }
 };
 
-module.exports = { getAllIngredients, getIngredientByName, addIngredient, getAllCategories };
+module.exports = {getAllIngredients, getIngredientsByName, addIngredient, getAllCategories};

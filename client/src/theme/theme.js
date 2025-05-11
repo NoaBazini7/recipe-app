@@ -27,19 +27,19 @@ const theme = createTheme({
             fontWeight: 400,
             fontSize: "1.2rem",
         },
-        h2:{
-            fontWeight:700,
+        h2: {
+            fontWeight: 700,
             fontSize: 35,
             color: "#F6724B",
 
         },
         h3: {
             fontWeight: 700,
-            fontSize:35,
+            fontSize: 35,
         },
-        h4:{
+        h4: {
             fontWeight: 700,
-            fontSize:40,
+            fontSize: 40,
         },
         button: {
             textTransform: "none", // keep button text normal-case
@@ -79,7 +79,6 @@ const theme = createTheme({
         },
 
 
-
         MuiButton: {    //color of buttons
             styleOverrides: {
                 root: {
@@ -94,6 +93,29 @@ const theme = createTheme({
                     "&:hover": {
                         backgroundColor: "#FC8A55",
                         borderColor: "#8F4E51 ",
+                    },
+                },
+            },
+        },
+        MuiToggleButton: {
+            styleOverrides: {
+                root: {
+                    flex: 1,
+                    minWidth: 200,
+                    padding: 16,
+                    borderRadius: 24,
+                    textAlign: "center",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                        backgroundColor: "#e3f2fd", // default hover (light blue, adjust as needed)
+                    },
+                    "&.Mui-selected": {
+                        boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+                        color: "#fff",
+                        backgroundColor: "#223C63",
+                    },
+                    "&.Mui-selected:hover": {
+                        backgroundColor: "#173155", // primary.dark
                     },
                 },
             },

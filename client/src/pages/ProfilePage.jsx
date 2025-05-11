@@ -1,57 +1,56 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
-import {Box, Button, CircularProgress, FormControlLabel, IconButton, Switch, Typography} from "@mui/material";
-import {IngredientsList} from "../components/IngredientsList.jsx";
+import {Box, Button, CircularProgress, IconButton, Typography} from "@mui/material";
 import {useUser} from "../contexts/UserContext.jsx";
 import {AnimatePresence, motion} from "framer-motion";
 import EditUserForm from "../components/EditUserForm.jsx";
 import LogoutIcon from "@mui/icons-material/Logout";
 import RecipeListCard from "../components/RecipeListCard.jsx";
+import Wizard from "../components/Wizard.jsx";
+import MyFridge from "../components/MyFridge.jsx";
 
 const ProfilePage = () => {
-    const [activeSection, setActiveSection] = useState("ingredients");
+    const [activeSection, setActiveSection] = useState("wizard");
     const [ingredients, setIngredients] = useState([]);
-    const [selectedIngredients, setSelectedIngredients] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const {user} = useUser();
     const navigate = useNavigate();
     const [lists, setLists] = useState([]);
-    const [showExtended, setShowExtended] = useState(false);
+    const [isEditingFridge, setIsEditingFridge] = useState(false);
+    const [selectedIngredients, setSelectedIngredients] = useState([]);
+    const [wizardKey, setWizardKey] = useState(0); // Add a key state for the Wizard
+
 
     const menuItems = [
-        {key: "ingredients", label: "My Ingredients"},
-        {key: "editProfile", label: "Edit Profile"},
-        {key: "recipes", label: "My Lists"},
-        {key: "settings", label: "Settings"},
+        {key: "wizard", label: "🔮 Plan a Meal"},
+        {key: "myFridge", label: "🧊 My Fridge"},
+        {key: "editProfile", label: "✏️ Edit Profile"},
+        {key: "recipes", label: "📖 My Lists"},
+        {key: "settings", label: "⚙️ Settings"}
     ];
 
 
     useEffect(() => {
         const fetchIngredients = async () => {
             try {
+                setLoading(true)
                 const response = await axios.get("http://localhost:5000/api/ingredients");
                 let sortedIngredients = response.data.sort((a, b) => a.name.localeCompare(b.name));
-                const filtered = showExtended
-                    ? sortedIngredients
-                    : sortedIngredients.filter((ingredient) => ingredient.isCommon);
-                setIngredients(filtered);
-                setLoading(false);
+                // const filtered = showExtended
+                //     ? sortedIngredients
+                //     : sortedIngredients.filter((ingredient) => ingredient.isCommon);
+                setIngredients(sortedIngredients);
             } catch (error) {
                 console.error("Error fetching ingredients:", error);
+            } finally {
                 setLoading(false);
             }
         };
-
-
         fetchIngredients();
 
-    }, [showExtended]);
+    }, []);
 
-
-    useEffect(() => {
-        console.log("selectedIngredients", selectedIngredients);
-    }, [selectedIngredients]);
 
     useEffect(() => {
         console.log("User in ProfilePage:", user);
@@ -67,36 +66,27 @@ const ProfilePage = () => {
 
     const renderSection = () => {
         switch (activeSection) {
-            case "ingredients":
+            case "wizard":
                 return (
-                    <Box>
-
-                        <IngredientsList
-                            ingredients={ingredients}
-                            onClick={(ingredient) => handleToggleIngredient(ingredient)}
-                        />
-
-                        <Box sx={{display: "flex", justifyContent: "center", mt: 1}}>
-                            <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={showExtended}
-                                        onChange={() => setShowExtended(!showExtended)}
-                                        color="secondary"
-                                    />
-                                }
-                                label={<Typography fontSize={15}>
-                                    Show Extended Ingredients List
-                                </Typography>}
-                            />
-                        </Box>
-
-                        <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
-                            <Button variant="contained" onClick={handleFindRecipes}>
-                                Find Recipes
-                            </Button>
-                        </Box>
-                    </Box>
+                    <Wizard
+                        key={wizardKey}
+                        ingredients={ingredients}
+                        selectedIngredients={selectedIngredients}
+                        setSelectedIngredients={setSelectedIngredients}
+                        isEditingFridge={isEditingFridge}
+                        setIsEditingFridge={setIsEditingFridge}
+                        onClick={(ingredient) => handleToggleIngredient(ingredient)}/>
+                );
+            case "myFridge":
+                return (
+                    <MyFridge
+                        ingredients={ingredients}
+                        selectedIngredients={selectedIngredients}
+                        setSelectedIngredients={setSelectedIngredients}
+                        isEditingFridge={isEditingFridge}
+                        setIsEditingFridge={setIsEditingFridge}
+                        onClick={(ingredient) => handleToggleIngredient(ingredient)}
+                    />
                 );
 
             case "editProfile":
@@ -109,7 +99,7 @@ const ProfilePage = () => {
                 return (
                     <Box sx={{p: 2}}>
                         <Typography variant="h5">📖 My Lists</Typography>
-                        <Box sx={{display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, mt: 2}}>
+                        <Box sx={{display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, mt: 2,}}>
                             <AnimatePresence>
                                 {lists.map((list) => (
                                     <motion.div
@@ -139,20 +129,15 @@ const ProfilePage = () => {
         setSelectedIngredients((prevSelected) =>
             prevSelected.find((item) => item._id === ingredient._id)
                 ? prevSelected.filter((item) => item._id !== ingredient._id)
-                : [...prevSelected, ingredient]
+                : [...prevSelected, ingredient._id]
         );
     };
 
-    const handleFindRecipes = async () => {
-        try {
-            const response = await axios.post(
-                "http://localhost:5000/api/recipes/filteredRecipes",
-                {ingredients: selectedIngredients.map((ingredient) => ingredient.name)}
-            );
-            navigate("/recipes", {state: {recipes: response.data}});
-        } catch (error) {
-            console.error("Error fetching filtered recipes:", error);
+    const handleMenuClick = (section) => {
+        if (section === "wizard") {
+            setWizardKey((prevKey) => prevKey + 1); // Increment the key to reset the Wizard
         }
+        setActiveSection(section);
     };
 
 
@@ -166,17 +151,17 @@ const ProfilePage = () => {
                 flexDirection: "row",
                 alignItems: "flex-start",
                 position: "relative",
-                minHeight: "100vh",
                 minWidth: "80vw",
                 backgroundColor: "background.paper",
                 pl: 0,
                 overflowX: "auto",
+                borderRadius: 2,
             }}
             className="profilePage"
         >
             {/* Sidebar */}
             <Box sx={{
-                width: 200,
+                width: 230,
                 height: "100vh",
                 backgroundColor: "primary.main",
                 justifyContent: "center",
@@ -185,13 +170,16 @@ const ProfilePage = () => {
                 flexDirection: "column",
                 alignItems: "center"
             }}>
+                <Typography variant="h3" gutterBottom textAlign="center" mb={5}>
+                    Welcome, {user ? user.username : "User"}!
+                </Typography>
                 {menuItems.map((item) => (
                     <Button
                         key={item.key}
                         variant={activeSection === item.key ? "contained" : "outlined"}
                         fullWidth
                         sx={{mb: 1, width: "90%", color: "text.primary"}}
-                        onClick={() => setActiveSection(item.key)}
+                        onClick={() => handleMenuClick(item.key)}
                     >
                         {item.label}
                     </Button>
@@ -204,13 +192,6 @@ const ProfilePage = () => {
 
             {/* Main Content with Animation */}
             <Box sx={{flex: 1, pt: 5, alignItems: "center"}}>
-                <Typography variant="h3" gutterBottom textAlign="center">
-                    Welcome {user ? user.username : "User"}!
-                </Typography>
-
-                <Typography variant="body1" sx={{mb: 2, color: "text.secondary"}} textAlign="center">
-                    {activeSection === "ingredients" ? "Choose your fridge's content" : ""}
-                </Typography>
 
                 <AnimatePresence mode="wait">
                     <motion.div

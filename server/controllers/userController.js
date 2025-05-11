@@ -89,6 +89,18 @@ const fetchSavedRecipes = async (req, res) => {
     }
 };
 
+const updateFridgeIngredients = async (req, res) => {
+    const {username, fridgeIngredients} = req.body;
+    console.log("inside updateFridgeIngredients", username, fridgeIngredients);
+
+    try {
+        const updatedUser = await userService.updateFridgeIngredients(username, fridgeIngredients);
+        res.json({message: "Fridge updated successfully", user: updatedUser});
+    } catch (err) {
+        res.status(400).json({error: err.message});
+    }
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -98,5 +110,6 @@ module.exports = {
     changePassword,
     addRecipeToList,
     removeRecipeFromList,
-    fetchSavedRecipes
+    fetchSavedRecipes,
+    updateFridgeIngredients,
 };

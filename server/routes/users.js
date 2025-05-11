@@ -20,4 +20,6 @@ router.post("/remove-recipe", userController.removeRecipeFromList);
 
 router.get("/saved-recipes", userController.fetchSavedRecipes);
 
+router.put("/fridgeUpdate", userController.updateFridgeIngredients);
+
 module.exports = router;

@@ -14,4 +14,7 @@ router.get("/categories", ingredientController.getAllCategories);
 // Route to add a new ingredient
 router.post("/", ingredientController.addIngredient);
 
+// Route to get ingredients by IDs
+router.get("/getIngredientsByName", ingredientController.getIngredientsByName);
+
 module.exports = router;

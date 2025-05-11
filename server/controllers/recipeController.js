@@ -51,18 +51,38 @@ const deleteRecipe = async (req, res) => {
 const getRecipesByIngredients = async (req, res) => {
     try {
         const allRecipes = await recipeService.getAllRecipes();
-        const ingredientNames = req.body.ingredients;
+        const ingredientNames = req.body.ingredients || [];
+        const mode = req.body.mode || "fridge"; // default to "fridge"
+        const tolerance = parseInt(req.body.tolerance) || 0;
+
         const filteredRecipes = allRecipes.filter((recipe) => {
-            // console.log(recipe.matchedIngredients.map((ingredient) => ingredient.name));
-            const recipeIngredientNames = recipe.matchedIngredients.map((ingredient) => ingredient.name);
-            return recipeIngredientNames.every((name) =>
-                ingredientNames.includes(name)
+            const recipeIngredientNames = recipe.matchedIngredients.map(
+                (ingredient) => ingredient.name
             );
+
+            const matchedCount = recipeIngredientNames.filter((name) =>
+                ingredientNames.includes(name)
+            ).length;
+
+            if (mode === "fridge") {
+                // All recipe ingredients must be present in user's list
+                return recipeIngredientNames.every((name) =>
+                    ingredientNames.includes(name)
+                );
+            } else if (mode === "inspiration") {
+                // Allow tolerance (number of missing ingredients)
+                const missingCount = recipeIngredientNames.length - matchedCount;
+                return matchedCount > 0 && missingCount <= tolerance;
+            }
+
+            return false; // default fallback
         });
+
         res.json(filteredRecipes);
     } catch (err) {
         res.status(500).json({error: err.message});
     }
 };
+
 
 module.exports = {getAllRecipes, getRecipesByIDs, addRecipe, updateRecipe, deleteRecipe, getRecipesByIngredients};

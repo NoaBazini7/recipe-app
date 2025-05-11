@@ -150,6 +150,7 @@ const ingredientsMap = {
     "white brown rice": "white rice",
     "red coloring": "red food coloring",
     "green coloring": "green food coloring",
+    "fillets cod": "cod fillets",
 }
 
 // Build regex patterns

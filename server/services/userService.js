@@ -99,6 +99,20 @@ const removeRecipeFromList = async (username, recipeID, listName) => {
     return user;
 };
 
+const mongoose = require("mongoose");
+
+const updateFridgeIngredients = async (username, ingredients) => {
+    const user = await getUserByUsername(username);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    console.log(ingredients);
+    user.fridgeIngredients = ingredients.map(id => new mongoose.Types.ObjectId(id));
+
+    await user.save();
+    return user;
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -110,4 +124,5 @@ module.exports = {
     changePassword,
     addRecipeToList,
     removeRecipeFromList,
+    updateFridgeIngredients,
 };

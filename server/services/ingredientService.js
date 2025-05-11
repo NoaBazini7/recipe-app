@@ -4,8 +4,8 @@ const getAllIngredients = async () => {
     return Ingredient.find({}).lean(); // Fetches all ingredients
 };
 
-const getIngredientByName = async (name) => {
-    return Ingredient.findOne({name});
+const getIngredientsByName = async (names) => {
+    return Ingredient.find({name: {$in: names}}).lean(); // Fetches ingredients by names
 };
 
 const addIngredient = async (ingredientData) => {
@@ -13,4 +13,5 @@ const addIngredient = async (ingredientData) => {
     return await ingredient.save();
 };
 
-module.exports = { getAllIngredients, getIngredientByName, addIngredient };
+
+module.exports = {getAllIngredients, getIngredientsByName, addIngredient,};

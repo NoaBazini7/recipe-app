@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {Box, Button, Card, CardContent, CardMedia, List, Popover,ListItem, Stack, Typography} from "@mui/material";
+import {Box, Button, Card, CardContent, List, ListItem, Popover, Typography} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import {AnimatePresence, motion} from "framer-motion"
 import axios from "axios";
-import StarIcon from "@mui/icons-material/Star";
 import {useUser} from "../contexts/UserContext.jsx";
+import RecipeInfoCard from "../components/RecipeInfoCard.jsx";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import IconButton from "@mui/material/IconButton";
 
 
 const RecipeDetailPage = () => {
@@ -19,7 +21,10 @@ const RecipeDetailPage = () => {
     const [newListName, setNewListName] = useState("");
     const [saved, setSaved] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
-    const [selectedIngredient, setSelectedIngredient] = useState('');
+    const [selectedIngredient, setSelectedIngredient] = useState({name: "", index: 0});
+    const [ingredients, setIngredients] = useState([]);
+    const [heartAnchorEl, setHeartAnchorEl] = useState(null);
+
 
     // Check if the recipe is already saved
     useEffect(() => {
@@ -28,9 +33,47 @@ const RecipeDetailPage = () => {
         }
     }, [user, recipe]);
 
-    const toggleSaveMenu = () => {
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+
+    const toggleSaveMenu = (event) => {
+        if (saved) return; // ignore if already saved
+        setHeartAnchorEl(event.currentTarget);
         setShowSaveMenu(prev => !prev);
     };
+
+
+    useEffect(() => {
+        const fetchRecipeIngredients = async () => {
+            if (!recipe || !recipe.matchedIngredients) return;
+
+            try {
+                const ingredientsNames = recipe.matchedIngredients.map(ingredient => ingredient.name);
+                const response = await axios.get("http://localhost:5000/api/ingredients/getIngredientsByName", {
+                    params: {names: ingredientsNames}
+                });
+
+                const fetchedIngredients = response.data;
+
+                // Reorder the response to match the original order
+                const orderedIngredients = ingredientsNames.map(name =>
+                    fetchedIngredients.find(ing => ing.name.toLowerCase() === name.toLowerCase())
+                );
+
+                setIngredients(orderedIngredients);
+                console.log(orderedIngredients);
+
+            } catch (error) {
+                console.error("Error fetching recipe ingredients:", error);
+            }
+        };
+
+        fetchRecipeIngredients();
+    }, [recipe]);
+
 
     const saveToList = async (listName) => {
         try {
@@ -74,21 +117,24 @@ const RecipeDetailPage = () => {
     }
 
     return (
-        <Box sx={{p: 4, display: 'flex', justifyContent: 'center', flexDirection: 'column',}}>
-            <Box sx={{mb: 2}}>
+        <Box sx={{p: 1, display: 'flex', flexDirection: 'column',}}>
+            <Box sx={{mb: 2, alignItems: "left", display: "flex", gap: 1}}>
                 <Button
                     startIcon={<ArrowBackIcon/>}
                     onClick={() => navigate(-1)}
                     variant="contained"
                     color="primary"
                     sx={{
-                        position: 'fixed',
-                        top: 16,
-                        left: 16,
-                        zIndex: 10
+                        borderRadius: 2,
+                        boxShadow: 10,
+                        backgroundColor: "primary.main",
+                        "&:hover": {
+                            backgroundColor: "primary.dark",
+                        },
                     }}
+
                 >
-                    Back
+                    back
                 </Button>
             </Box>
 
@@ -96,119 +142,189 @@ const RecipeDetailPage = () => {
                 borderRadius: 2,
                 boxShadow: 10,
                 position: "relative",
-                width: "100%",
-                maxWidth: 1000,
+                width: "80vw",
                 display: "flex",
                 flexDirection: "row",
-                height: "auto",
-                mt:8,
                 boxSizing: "border-box",
-                padding: 2
+                padding: 2,
             }}>
-                <CardContent sx={{
-                    flex: 1,
-                    display: "flex",
-                    flexDirection: "column",
-                    boxSizing: "border-box",
-                    p: 1,
-                    overflow: "hidden",
-                    maxWidth: "70%",
-                    height: "auto",
-                }}>
-                    <Typography variant="h4" gutterBottom sx={{ fontSize: "1.25rem" }}>
-                        {recipe.title}
-                    </Typography>
+                <Box sx={{width: "50vw"}}>
+                    <CardContent sx={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        boxSizing: "border-box",
+                        p: 1,
 
-                    <Typography variant="h6" color="text.secondary" gutterBottom sx={{ fontSize: "0.875rem" }}>
-                        {recipe.category}
-                    </Typography>
 
-                    {/* Steps */}
-                    <Typography variant="h6" sx={{ mt: 1}}>
-                        Instructions
-                    </Typography>
+                    }}>
 
-                    {recipe.steps?.length > 0 ? (
-                        <List dense sx={{ marginTop: 2 }}>
-                            {recipe.steps.map((step, index) => (
-                                <ListItem key={index} sx={{ alignItems: "flex-start", py: 0.5 }}>
-                                    <Typography variant="body2" sx={{ fontSize: "0.875rem", mb: 1 }}>
-                                        {index + 1}. {step}
-                                    </Typography>
-                                </ListItem>
-                            ))}
-                        </List>
-                    ) : (
-                        <Typography variant="body2" color="text.secondary">
-                            No instructions provided.
+                        <Typography variant="h4" gutterBottom
+                                    sx={{
+                                        fontSize: "1.5rem",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        justifyContent: 'center'
+                                    }}>
+                            <IconButton
+                                onClick={toggleSaveMenu}
+                                sx={{p: 0, mr: 1}}
+                                aria-label={saved ? "Unsave Recipe" : "Save Recipe"}
+                                disabled={saved}
+                            >
+                                {saved ? (
+                                    <FavoriteIcon sx={{color: 'red'}}/>
+                                ) : (
+                                    <FavoriteBorderIcon/>
+                                )}
+                            </IconButton>
+                            {recipe.title}
                         </Typography>
-                    )}
 
-                    {/* Ingredients */}
-                    <Typography variant="h6" sx={{ mt: 2 }}>
-                        Ingredients
-                    </Typography>
-
-                    {recipe.servings && (
-                        <Typography variant="body2" gutterBottom sx={{ fontSize: "0.75rem" }}>
-                            (for {recipe.servings} servings)
-                        </Typography>
-                    )}
-
-                    <Box sx={{ width: "100%", mt: 1 }}>
-                        {recipe.rawIngredients?.length > 0 ? (
-                            <>
-                                <List dense sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                                    {recipe.rawIngredients.map((ingredient, index) => (
-                                        <ListItem
-                                            key={index}
-                                            button
-                                            onClick={(event) => {
-                                                setAnchorEl(event.currentTarget);
-                                                setSelectedIngredient(ingredient);
-                                            }}
-                                            sx={{
-                                                width: { xs: "100%", sm: "48%", md: "30%" },
-                                                py: 0,
-                                                cursor: "pointer",
-                                            }}
-                                        >
-                                            <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
-                                                • {ingredient}
-                                            </Typography>
+                        <Popover
+                            open={showSaveMenu}
+                            anchorEl={heartAnchorEl}
+                            onClose={() => setShowSaveMenu(false)}
+                            anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                            transformOrigin={{vertical: 'top', horizontal: 'center'}}
+                        >
+                            <Box sx={{p: 2, width: 260}}>
+                                <Typography variant="subtitle1" sx={{mb: 1}}>Save to List</Typography>
+                                <List dense>
+                                    {user?.recipeLists?.map((list, i) => (
+                                        <ListItem key={i} button disabled={saved}
+                                                  onClick={() => saveToList(list.title)}>
+                                            <Typography>{list.title}</Typography>
                                         </ListItem>
                                     ))}
                                 </List>
 
-                                <Popover
-                                    open={Boolean(anchorEl)}
-                                    anchorEl={anchorEl}
-                                    onClose={() => setAnchorEl(null)}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'left',
-                                    }}
-                                >
-                                    <Box sx={{ p: 2 }}>
-                                        <Typography variant="subtitle1">{selectedIngredient}</Typography>
-                                        <Typography variant="body2">Calories: 100</Typography>
-                                        <Typography variant="body2">Category: Vegetable</Typography>
-                                        <Typography variant="body2">Kosher: ✔</Typography>
-                                    </Box>
-                                </Popover>
-                            </>
+                                <Box sx={{mt: 1}}>
+                                    <Typography variant="caption">Or create new list:</Typography>
+                                    <input
+                                        type="text"
+                                        value={newListName}
+                                        onChange={(e) => setNewListName(e.target.value)}
+                                        placeholder="e.g. Meal Prep"
+                                        style={{width: "100%", padding: "4px", marginTop: "4px"}}
+                                    />
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        onClick={() => saveToList(newListName)}
+                                        sx={{mt: 1, width: "100%"}}
+                                        disabled={saved || !newListName.trim()}
+                                    >
+                                        {saved ? "Saved" : "Save to New List"}
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Popover>
+
+                        <Typography variant="h6" color="text.secondary" gutterBottom sx={{fontSize: "1rem"}}>
+                            {recipe.category}
+                        </Typography>
+
+                        {/* Steps */}
+                        <Typography variant="h6" sx={{mt: 4}}>
+                            Instructions
+                        </Typography>
+
+                        {recipe.steps?.length > 0 ? (
+                            <List dense sx={{}}>
+                                {recipe.steps.map((step, index) => (
+                                    <ListItem key={index} sx={{alignItems: "flex-start", py: 0.5}}>
+                                        <Typography variant="body2" sx={{fontSize: "0.875rem", mb: 1}}>
+                                            {index + 1}. {step}
+                                        </Typography>
+                                    </ListItem>
+                                ))}
+                            </List>
                         ) : (
                             <Typography variant="body2" color="text.secondary">
-                                No ingredients provided.
+                                No instructions provided.
                             </Typography>
                         )}
-                    </Box>
-                </CardContent>
+
+                        {/* Ingredients */}
+                        <Typography variant="h6" sx={{mt: 2}}>
+                            Ingredients
+                        </Typography>
+
+                        {recipe.servings && (
+                            <Typography variant="body2" gutterBottom sx={{fontSize: "0.75rem"}}>
+                                (for {recipe.servings} servings)
+                            </Typography>
+                        )}
+
+                        <Box sx={{width: "45vw", mt: 1}}>
+                            {recipe.rawIngredients?.length > 0 ? (
+                                <>
+                                    <List dense
+                                          sx={{display: "flex", gap: 1, flexDirection: "column"}}>
+                                        {recipe.rawIngredients.map((ingredient, index) => (
+                                            <ListItem
+                                                key={index}
+                                                button
+                                                onClick={(event) => {
+                                                    setAnchorEl(event.currentTarget);
+                                                    setSelectedIngredient({name: ingredient, index: index});
+
+                                                }}
+                                                sx={{
+
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                <Typography variant="body2" sx={{fontSize: "0.875rem"}}>
+                                                    • {ingredient}
+                                                </Typography>
+                                            </ListItem>
+                                        ))}
+                                    </List>
+
+                                    <Popover
+                                        open={Boolean(anchorEl)}
+                                        anchorEl={anchorEl}
+                                        onClose={() => setAnchorEl(null)}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                    >
+                                        {Boolean(anchorEl) && ingredients[selectedIngredient.index] && (
+                                            <Box sx={{p: 2}}>
+                                                <Typography variant="subtitle1">{selectedIngredient.name}</Typography>
+                                                <Typography variant="body2">
+                                                    Calories Per
+                                                    100g: {ingredients[selectedIngredient.index]?.caloriesPer100g ?? "N/A"}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    Category: {ingredients[selectedIngredient.index]?.category ?? "N/A"}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    Kosher: {ingredients[selectedIngredient.index]?.kosher ? "✔" : "✘"}
+                                                </Typography>
+                                            </Box>
+                                        )}
+
+                                    </Popover>
+                                </>
+                            ) : (
+                                <Typography variant="body2" color="text.secondary">
+                                    No ingredients provided.
+                                </Typography>
+                            )}
+                        </Box>
+
+                    </CardContent>
+                </Box>
+
 
                 {/* right part: image with details*/}
                 <Box sx={{
-                    width: "100%",
-                    maxWidth: "75vh",
+                    width: "40%",
                     p: 2,
                     display: "flex",
                     flexDirection: "column",
@@ -217,76 +333,10 @@ const RecipeDetailPage = () => {
                     height: "auto",
                     boxSizing: "border-box"
                 }}>
-                    {recipe.imageUrl && recipe.imageUrl.startsWith("http") && (
-                        <CardMedia
-                            component="img"
-                            alt={recipe.title}
-                            image={recipe.imageUrl}
-                            sx={{
-                                objectFit: "cover",
-                                width: "100%",
-                                height: "50%",
-                                borderRadius: 2,
-                                mb: 2
-                            }}
-                        />
-                    )}
-                    {/* Calories */}
-                    {recipe.calories && (
-                        <Box sx={{ mb: 3 }}>
-                            <Typography variant="h6" sx={{ fontSize: "0.875rem"}}>
-                                Calories: {recipe.calories} per serving
-                            </Typography>
-                        </Box>
-                    )}
-
-                    {/* Time */}
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3}}>
-                        <Box>
-                            <Typography variant="h2" sx={{ fontSize: "0.75rem" }}>
-                                Preparation:
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontSize: "0.5rem", mb: 1 }}>
-                                {recipe.prep_time}
-                            </Typography>
-                            <Typography variant="h2" sx={{ fontSize: "0.75rem" }}>
-                                Cooking:
-                            </Typography>
-                            <Typography variant="body2" sx={{ fontSize: "0.5rem" }}>
-                                {recipe.cook_time}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ ml: 4 }}>
-                            <Typography variant="h2" sx={{ fontSize: "1rem" }} >
-                                Total time:
-                            </Typography>
-                            <Typography variant="h2" sx={{ fontSize: "1.5rem", color: "text.primary"}}>
-                                =  {recipe.total_time}
-                            </Typography>
-                        </Box>
-                    </Box>
-
-
-
-                    {/* Rating and kosher */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1 }}>
-                        {recipe.rating && (
-                            <Box sx={{ display: "flex", alignItems: "center" }}>
-                                <StarIcon sx={{ fontSize: "1.75rem", color: "#fbc02d", mr: 0.5 }} />
-                                <Typography variant="h2" sx={{ fontSize: "0.75rem" }}>
-                                    {recipe.rating} / 5
-                                </Typography>
-                            </Box>
-                        )}
-
-                        {recipe.kosher !== undefined && (
-                            <Typography variant="h2" sx={{ fontSize: "1rem" }}>
-                                Kosher {recipe.kosher ? "✔" : "✘"}
-                            </Typography>
-                        )}
-                    </Box>
+                    <RecipeInfoCard recipe={recipe}/>
                 </Box>
             </Card>
+            {/*</Box>*/}
 
             {/* url to original website */}
             <Box
@@ -298,73 +348,24 @@ const RecipeDetailPage = () => {
                 }}
             >
                 <Typography variant="caption" color="text.secondary">
-                    For the full recipe:&nbsp;
-                    <a
+                    For the full recipe:
+                    <br/>
+                    <Box
+                        component="a"
                         href={recipe.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ textDecoration: 'underline', color: 'text.primary' }}
+                        sx={{
+                            textDecoration: "underline",
+                            color: "text.primary", // uses MUI theme color properly
+                            fontSize: "inherit",   // match the Typography caption sizing
+                        }}
                     >
                         {recipe.url}
-                    </a>
+                    </Box>
                 </Typography>
             </Box>
 
-
-            <Button
-                variant="outlined"
-                color={saved ? "background.default" : "primary"}
-                onClick={toggleSaveMenu}
-                sx={{
-                    position: "fixed",
-                    bottom: 16,
-                    right: 16,
-                    zIndex: 10,
-                    transition: "all 0.3s ease",
-                }}
-            >
-                {saved ? "Saved" : "Save"}
-            </Button>
-            {showSaveMenu && (
-                <Card sx={{
-                    position: "fixed",
-                    bottom: 70,
-                    right: 16,
-                    width: 260,
-                    zIndex: 11,
-                    p: 2,
-                    boxShadow: 6,
-                    backgroundColor: "white",
-                }}>
-                    <Typography variant="subtitle1" sx={{mb: 1}}>Save to List</Typography>
-                    <List dense>
-                        {user?.recipeLists?.map((list, i) => (
-                            <ListItem key={i} button onClick={() => saveToList(list.title)}>
-                                <Typography>{list.title}</Typography>
-                            </ListItem>
-                        ))}
-                    </List>
-
-                    <Box sx={{mt: 1}}>
-                        <Typography variant="caption">Or create new list:</Typography>
-                        <input
-                            type="text"
-                            value={newListName}
-                            onChange={(e) => setNewListName(e.target.value)}
-                            placeholder="e.g. Meal Prep"
-                            style={{width: "100%", padding: "4px", marginTop: "4px"}}
-                        />
-                        <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => saveToList(newListName)}
-                            sx={{mt: 1, width: "100%"}}
-                        >
-                            Save to New List
-                        </Button>
-                    </Box>
-                </Card>
-            )}
 
         </Box>
     );
