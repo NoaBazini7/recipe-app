@@ -36,9 +36,11 @@ function WelcomePage() {
                     textAlign: "center",
                 }}
             >
-                <Typography variant="h3" sx={{maxWidth: "80%", color:"primary.contrastText", padding:"40px", textShadow:"2px black"}}>
-                    Let's start exploring the world of cooking together!
+                <Typography variant="h3" sx={{maxWidth: "90%", color:"primary.contrastText", marginTop:"20px", textShadow:"2px black"}}>
+                    Welcome to your cooking assistant!
                 </Typography>
+                <Typography variant="body1" sx={{maxWidth: "90%", color:"primary.contrastText", marginBottom:"40px", textShadow:"2px black"}}>
+                    Pick your ingredients — we’ll find what to cook.                </Typography>
                 <Button variant="contained"
                         sx={{fontSize: "1rem", borderRadius: "20px", width: "150px"}}
                         onClick={handleLogIn}>

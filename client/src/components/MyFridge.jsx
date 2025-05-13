@@ -103,11 +103,23 @@ const MyFridge = ({
                 </>
             ) : (
                 <>
+                    <Box sx={{textAlign: "center", mt: 2, mb: 1}}>
+                        <Typography variant="body1" sx={{color:"text.secondary"}}>
+                            Choose the ingredients you have
+                        </Typography>
+                    </Box>
                     <IngredientsList
                         ingredients={ingredients}
                         selectedIngredients={fridgeIngredients}
                         handleToggleIngredient={handleToggleIngredient}
                     />
+                    {selectedIngredients.length === 0 && (
+                        <Box sx={{textAlign: "center", mt: 2}}>
+                            <Typography color="error" variant="body1">
+                                At the moment your fridge is empty!🍅
+                            </Typography>
+                        </Box>
+                    )}
 
                     <Box sx={{display: "flex", justifyContent: "center", mt: 2, gap: 2}}>
                         <Button
