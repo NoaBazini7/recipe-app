@@ -8,8 +8,7 @@ const COLUMN_COUNT = 4;
 const ITEM_WIDTH = 200;
 const CHIP_HEIGHT = 64;
 
-export function IngredientsList({ingredients, handleToggleIngredient, selectedIngredients}) {
-    const [selectedIngredient, setSelectedIngredient] = useState(selectedIngredients);
+export function IngredientsList({ingredients, selectedIngredients, setSelectedIngredients}) {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredIngredients, setFilteredIngredients] = useState([]);
     const [showExtended, setShowExtended] = useState(false); // Add state for the switch
@@ -26,13 +25,11 @@ export function IngredientsList({ingredients, handleToggleIngredient, selectedIn
     }, [ingredients, searchTerm, showExtended]);
 
     const handleChipClick = (ingredient) => {
-        setSelectedIngredient((prev) =>
+        setSelectedIngredients((prev) =>
             prev.includes(ingredient._id)
                 ? prev.filter((id) => id !== ingredient._id)
                 : [...prev, ingredient._id]
         );
-
-        handleToggleIngredient(ingredient);
     };
 
     const itemData = useMemo(() => {
@@ -117,7 +114,7 @@ export function IngredientsList({ingredients, handleToggleIngredient, selectedIn
                                     const ingredient = row?.[columnIndex];
                                     if (!ingredient) return null;
 
-                                    const isSelected = selectedIngredient.includes(ingredient._id);
+                                    const isSelected = selectedIngredients.includes(ingredient._id);
 
                                     return (
                                         <Box

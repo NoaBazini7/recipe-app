@@ -1,8 +1,9 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Box, Button, Card, CardContent, CardMedia, Grid, IconButton, Stack, Typography,} from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import "../App.css";
+import theme from "../theme/theme.js";
 
 const RecipesPage = () => {
     const location = useLocation();
@@ -10,6 +11,11 @@ const RecipesPage = () => {
     const recipesFromState = location.state?.recipes || [];
     console.log("location state", location.state);
     const [recipes] = useState(recipesFromState);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
 
     return (
         <Box sx={{px: 4, pt: 10, pb: 6, height: "100vh",}}>
@@ -33,6 +39,7 @@ const RecipesPage = () => {
                     <Typography variant="h2" textAlign="center" flex={1}>
                         Recipes for You
                     </Typography>
+
                     <Box>
                         <IconButton onClick={() => navigate("/profile")}>
                             <HomeIcon sx={{fontSize: 30, color: "text.secondary"}}/>
@@ -43,9 +50,26 @@ const RecipesPage = () => {
             </Box>
 
             {recipes.length === 0 ? (
-                <Typography textAlign="center" mt={4}>
-                    No recipes found 😔
-                </Typography>
+                <Box>
+                    <Typography textAlign="center" mt={10} variant="h2" color="text.secondary">
+                        No recipes found 😔
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        textAlign="center"
+                        flex={1}
+                        color={theme.palette.primary.main}
+                        sx={{
+                            cursor: "pointer",
+                            textDecoration: "underline",
+                            "&:hover": {color: theme.palette.text.secondary},
+                        }}
+                        onClick={() => navigate("/profile")}
+                    >
+                        Search again? Click here!
+                    </Typography>
+
+                </Box>
             ) : (
                 <Grid container spacing={4} justifyContent="center" mt={2} pb={2}>
                     {recipes.map((recipe) => (

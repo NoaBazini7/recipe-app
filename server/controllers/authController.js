@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
     try {
         const existingUser = await userService.getUserByUsername(username);
         if (existingUser) {
-            return res.status(400).json({message: "User already exists"});
+            return res.status(400).json({message: "Username taken. Please choose another."});
         }
 
         await userService.createUser({username, email, password: password});

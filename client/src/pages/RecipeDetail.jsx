@@ -226,26 +226,6 @@ const RecipeDetailPage = () => {
                             {recipe.category}
                         </Typography>
 
-                        {/* Steps */}
-                        <Typography variant="h6" sx={{mt: 4}}>
-                            Instructions
-                        </Typography>
-
-                        {recipe.steps?.length > 0 ? (
-                            <List dense sx={{}}>
-                                {recipe.steps.map((step, index) => (
-                                    <ListItem key={index} sx={{alignItems: "flex-start", py: 0.5}}>
-                                        <Typography variant="body2" sx={{fontSize: "0.875rem", mb: 1}}>
-                                            {index + 1}. {step}
-                                        </Typography>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        ) : (
-                            <Typography variant="body2" color="text.secondary">
-                                No instructions provided.
-                            </Typography>
-                        )}
 
                         {/* Ingredients */}
                         <Typography variant="h6" sx={{mt: 2}}>
@@ -317,6 +297,27 @@ const RecipeDetailPage = () => {
                                 </Typography>
                             )}
                         </Box>
+
+                        {/* Steps */}
+                        <Typography variant="h6" sx={{mt: 4}}>
+                            Instructions
+                        </Typography>
+
+                        {recipe.steps?.length > 0 ? (
+                            <List dense sx={{}}>
+                                {recipe.steps.map((step, index) => (
+                                    <ListItem key={index} sx={{alignItems: "flex-start", py: 0.5}}>
+                                        <Typography variant="body2" sx={{fontSize: "0.875rem", mb: 1}}>
+                                            {index + 1}. {step}
+                                        </Typography>
+                                    </ListItem>
+                                ))}
+                            </List>
+                        ) : (
+                            <Typography variant="body2" color="text.secondary">
+                                No instructions provided.
+                            </Typography>
+                        )}
 
                     </CardContent>
                 </Box>

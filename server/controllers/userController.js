@@ -91,7 +91,7 @@ const fetchSavedRecipes = async (req, res) => {
 
 const updateFridgeIngredients = async (req, res) => {
     const {username, fridgeIngredients} = req.body;
-    console.log("inside updateFridgeIngredients", username, fridgeIngredients);
+    
 
     try {
         const updatedUser = await userService.updateFridgeIngredients(username, fridgeIngredients);

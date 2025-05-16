@@ -1,9 +1,12 @@
 import {Box, Button, Typography} from "@mui/material";
 import GifBackground from "../components/GifBack.jsx";
 import {useNavigate} from "react-router-dom";
+import {useEffect} from "react";
+import {useUser} from "../contexts/UserContext.jsx";
 
 function WelcomePage() {
     const navigate = useNavigate();
+    const {logout} = useUser();
 
 
     function handleLogIn() {
@@ -13,6 +16,10 @@ function WelcomePage() {
     function handleRegister() {
         navigate("/register");
     }
+
+    useEffect(() => {
+        logout();
+    }, []);
 
     return (
         <>
@@ -36,11 +43,21 @@ function WelcomePage() {
                     textAlign: "center",
                 }}
             >
-                <Typography variant="h3" sx={{maxWidth: "90%", color:"primary.contrastText", marginTop:"20px", textShadow:"2px black"}}>
+                <Typography variant="h3" sx={{
+                    maxWidth: "90%",
+                    color: "primary.contrastText",
+                    marginTop: "20px",
+                    textShadow: "2px black"
+                }}>
                     Welcome to your cooking assistant!
                 </Typography>
-                <Typography variant="body1" sx={{maxWidth: "90%", color:"primary.contrastText", marginBottom:"40px", textShadow:"2px black"}}>
-                    Pick your ingredients — we’ll find what to cook.                </Typography>
+                <Typography variant="body1" sx={{
+                    maxWidth: "90%",
+                    color: "primary.contrastText",
+                    marginBottom: "40px",
+                    textShadow: "2px black"
+                }}>
+                    Pick your ingredients — we’ll find what to cook. </Typography>
                 <Button variant="contained"
                         sx={{fontSize: "1rem", borderRadius: "20px", width: "150px"}}
                         onClick={handleLogIn}>

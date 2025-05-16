@@ -19,12 +19,19 @@ const createUser = async (userData) => {
 };
 
 const updateUser = async (userData) => {
-    if (userData.password) {
-        const salt = await bcrypt.genSalt(10);
-        userData.password = await bcrypt.hash(userData.password, salt);
-    } else
+    const user = await getUserByUsername(userData.username);
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    if (!userData.password) {
         delete userData.password;
-    return User.updateOne(userData);
+    }
+
+    Object.assign(user, userData); // Update user fields
+    await user.save();
+
+    return user;
 };
 
 const deleteUser = async (id) => {

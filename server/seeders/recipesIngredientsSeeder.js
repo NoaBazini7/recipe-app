@@ -23,6 +23,34 @@ const dairyKeywords = [
 ];
 const meatCategories = ['Meat, Poultry & Pork'];
 
+const allergenMap = {
+    lactose: {
+        categories: ['Dairy & Eggs'],
+        keywords: dairyKeywords,
+    },
+    gluten: {
+        keywords: ['wheat', 'flour', 'barley', 'rye', 'malt', 'semolina', 'spelt', 'farina', 'durum', 'bread', 'pasta', 'noodle', 'cracker', 'biscuit', 'couscous'],
+    },
+    nuts: {
+        keywords: ['almond', 'cashew', 'walnut', 'pecan', 'hazelnut', 'pistachio', 'macadamia', 'nut'],
+    },
+    soy: {
+        keywords: ['soy', 'soya', 'edamame', 'tofu', 'soybean'],
+    },
+    eggs: {
+        keywords: ['egg', 'eggs', 'egg white', 'egg yolk'],
+        categories: ['Dairy & Eggs'],
+    },
+    fish: {
+        keywords: ['salmon', 'tuna', 'trout', 'haddock', 'cod', 'anchovy', 'sardine', 'mackerel'],
+        categories: ['Seafood'],
+    },
+    shellfish: {
+        keywords: ['shrimp', 'crab', 'lobster', 'clam', 'scallop', 'oyster', 'mussel'],
+        categories: ['Seafood'],
+    },
+};
+
 
 async function seedRecipes() {
     await connectDB();
@@ -74,6 +102,7 @@ async function seedRecipes() {
                     mapOfCommons.set(ingredientDoc.name, mapOfCommons.get(ingredientDoc.name) + 1);
                 }
 
+
                 // 🆕 Update the category counter
                 if (ingredientDoc.category) {
                     categoryCounter[ingredientDoc.category] = (categoryCounter[ingredientDoc.category] || 0) + 1;
@@ -85,6 +114,7 @@ async function seedRecipes() {
                 });
             }
         }
+        const foundAllergies = new Set();
 
         let isKosher = true;
         let hasMeat = false;
@@ -96,7 +126,22 @@ async function seedRecipes() {
             if ((dairyCategories.includes(fullIngredient.category) && !(fullIngredient.name.toLowerCase()).includes("egg")) || (dairyKeywords.some(keyword =>
                 fullIngredient.name.toLowerCase().includes(keyword)))) hasDairy = true;
             if (meatCategories.includes(fullIngredient.category)) hasMeat = true;
+
+            for (const [allergy, criteria] of Object.entries(allergenMap)) {
+                const nameMatch = criteria.keywords?.some(keyword => fullIngredient.name.includes(keyword));
+                const categoryMatch = criteria.categories?.some(category => fullIngredient.category.includes(category));
+
+                // Exclude false positives for gluten-free recipes
+                const isGlutenFalsePositive =
+                    allergy === "gluten" &&
+                    recipe.name.toLowerCase().includes("gluten free");
+
+                if ((nameMatch || categoryMatch) && !isGlutenFalsePositive) {
+                    foundAllergies.add(allergy);
+                }
+            }
         }
+
 
         if (hasMeat && hasDairy) {
             isKosher = false;
@@ -117,6 +162,7 @@ async function seedRecipes() {
             rawIngredients: rawRecipe.ingredients,
             matchedIngredients,
             steps: rawRecipe.steps,
+            allergies: Array.from(foundAllergies),
         });
 
         console.log(`🍽️ [${count}/${totalRecipes}] Inserted recipe: ${rawRecipe.title}`);

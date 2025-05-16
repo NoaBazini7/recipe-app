@@ -14,11 +14,10 @@ const ProfilePage = () => {
     const [activeSection, setActiveSection] = useState("wizard");
     const [ingredients, setIngredients] = useState([]);
     const [loading, setLoading] = useState(false);
-    const {user} = useUser();
+    const {user, logout} = useUser();
     const navigate = useNavigate();
     const [lists, setLists] = useState([]);
     const [isEditingFridge, setIsEditingFridge] = useState(false);
-    const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [wizardKey, setWizardKey] = useState(0); // Add a key state for the Wizard
 
 
@@ -71,21 +70,16 @@ const ProfilePage = () => {
                     <Wizard
                         key={wizardKey}
                         ingredients={ingredients}
-                        selectedIngredients={selectedIngredients}
-                        setSelectedIngredients={setSelectedIngredients}
                         isEditingFridge={isEditingFridge}
                         setIsEditingFridge={setIsEditingFridge}
-                        onClick={(ingredient) => handleToggleIngredient(ingredient)}/>
+                    />
                 );
             case "myFridge":
                 return (
                     <MyFridge
                         ingredients={ingredients}
-                        selectedIngredients={selectedIngredients}
-                        setSelectedIngredients={setSelectedIngredients}
                         isEditingFridge={isEditingFridge}
                         setIsEditingFridge={setIsEditingFridge}
-                        onClick={(ingredient) => handleToggleIngredient(ingredient)}
                     />
                 );
 
@@ -99,6 +93,19 @@ const ProfilePage = () => {
                 return (
                     <Box sx={{p: 2}}>
                         <Typography variant="h5">📖 My Lists</Typography>
+
+                        {lists.length === 0 && (
+                            <>
+                                <Typography variant="body1" color="text.secondary" sx={{mt: 8}}>
+                                    No lists found.
+                                </Typography>
+                                <Typography variant="body1" color="text.secondary">
+                                    Recipe you find and save will appear here!
+                                </Typography>
+                            </>
+
+                        )
+                        }
                         <Box sx={{display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, mt: 2,}}>
                             <AnimatePresence>
                                 {lists.map((list) => (
@@ -125,14 +132,6 @@ const ProfilePage = () => {
         }
     };
 
-    const handleToggleIngredient = (ingredient) => {
-        setSelectedIngredients((prevSelected) =>
-            prevSelected.find((item) => item._id === ingredient._id)
-                ? prevSelected.filter((item) => item._id !== ingredient._id)
-                : [...prevSelected, ingredient._id]
-        );
-    };
-
     const handleMenuClick = (section) => {
         if (section === "wizard") {
             setWizardKey((prevKey) => prevKey + 1); // Increment the key to reset the Wizard
@@ -152,6 +151,7 @@ const ProfilePage = () => {
                 alignItems: "flex-start",
                 position: "relative",
                 minWidth: "80vw",
+                minHeight: "100vh",
                 backgroundColor: "background.paper",
                 pl: 0,
                 overflowX: "auto",
@@ -168,7 +168,8 @@ const ProfilePage = () => {
                 gap: 2,
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center"
+                alignItems: "center",
+
             }}>
                 <Typography variant="h3" gutterBottom textAlign="center" mb={5}>
                     Welcome, {user ? user.username : "User"}!
@@ -186,7 +187,11 @@ const ProfilePage = () => {
                 ))}
             </Box>
 
-            <IconButton onClick={() => navigate("/")} sx={{position: "absolute", top: 20, right: 20}}>
+            <IconButton onClick={() => {
+                logout();
+                navigate("/");
+            }}
+                        sx={{position: "absolute", top: 20, right: 20}}>
                 <LogoutIcon sx={{fontSize: 40, marginTop: "25px", color: "text.primary"}}/>
             </IconButton>
 

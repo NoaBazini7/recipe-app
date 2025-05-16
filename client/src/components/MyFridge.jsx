@@ -1,19 +1,32 @@
 import React, {useEffect, useState} from "react";
-import {Box, Button, Typography} from "@mui/material";
+import {Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Typography} from "@mui/material";
 import {IngredientsList} from "./IngredientsList.jsx";
 import axios from "axios";
 import {useUser} from "../contexts/UserContext.jsx";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import theme from "../theme/theme.js";
+import categoryColors from "../utils/categoryColors.js";
+
 
 const MyFridge = ({
                       ingredients,
-                      selectedIngredients,
-                      setSelectedIngredients,
                       isEditingFridge,
-                      setIsEditingFridge
+                      setIsEditingFridge,
+                      setSelectedIngredients
+
                   }) => {
     const {user, updateUser} = useUser();
     const [fridgeIngredients, setFridgeIngredients] = useState(user.fridgeIngredients);
     const ingredientsMap = createIngredientMap(ingredients);
+    const [selectedIngredientsEditing, setSelectedIngredientsEditing] = useState(user.fridgeIngredients);
+    const groupedIngredients = fridgeIngredients.reduce((groups, id) => {
+        const ingredient = ingredientsMap[id];
+        if (!ingredient) return groups;
+        const category = ingredient.category || "Uncategorized";
+        if (!groups[category]) groups[category] = [];
+        groups[category].push(ingredient);
+        return groups;
+    }, {});
 
     function createIngredientMap(ingredients) {
         return ingredients.reduce((map, ingredient) => {
@@ -26,7 +39,7 @@ const MyFridge = ({
         try {
             const response = await axios.put('http://localhost:5000/api/users/fridgeUpdate', {
                 username: user.username,
-                fridgeIngredients: selectedIngredients,
+                fridgeIngredients: selectedIngredientsEditing,
             });
             updateUser(response.data.user);
             setIsEditingFridge(false);
@@ -36,25 +49,18 @@ const MyFridge = ({
     }
 
     useEffect(() => {
+        console.log("Fridge ingredients updated:", user.fridgeIngredients);
         setFridgeIngredients(user.fridgeIngredients);
-        setSelectedIngredients(user.fridgeIngredients);
+        setSelectedIngredientsEditing(user.fridgeIngredients);
     }, [user.fridgeIngredients]);
 
-    const handleToggleIngredient = (ingredient) => {
-        setSelectedIngredients((prev) =>
-            prev.includes(ingredient._id)
-                ? prev.filter((id) => id !== ingredient._id)
-                : [...prev, ingredient._id]
-        );
-    };
 
     return (
         <Box>
-            <Box sx={{display: "flex", alignItems: "flex-start"}}>
-                <Typography variant="h4" sx={{pb: 2, mt: 2, ml: 2}}>🧊 My Fridge</Typography>
-            </Box>
+            <Typography variant="h5" sx={{pb: 2, mt: 2, ml: 2}}>🧊 My Fridge</Typography>
             {!isEditingFridge ? (
                 <>
+
                     <Box sx={{
                         display: "flex",
                         flexDirection: "row",
@@ -62,36 +68,39 @@ const MyFridge = ({
                         justifyContent: "space-between",
                         flexWrap: "wrap",
                     }}>
-                        {Object.entries(
-                            fridgeIngredients.reduce((groups, id) => {
-                                const ingredient = ingredientsMap[id];
-                                if (!ingredient) return groups;
-                                const category = ingredient.category || "Uncategorized";
-                                if (!groups[category]) groups[category] = [];
-                                groups[category].push(ingredient);
-                                return groups;
-                            }, {})
-                        ).map(([category, ingredients]) => (
-                            <Box key={category} sx={{m: 1, backgroundColor: "primary.main", width: "250px"}}
-                                 p={2}
-                                 borderRadius={2}>
-                                <Typography variant="h6"
-                                            sx={{textTransform: "capitalize", color: "text.secondary"}}>
-                                    {category}
+                        {fridgeIngredients?.length === 0 && (
+                            <Box sx={{textAlign: "center", mb: 1}}>
+                                <Typography variant="body1" sx={{color: "text.secondary"}}>
+                                    Your fridge is empty! Please add ingredients.
                                 </Typography>
-                                {ingredients.map((ingredient) => (
-                                    <Box
-                                        key={ingredient._id}
-                                        sx={{
-                                            px: 1.5,
-                                            py: 0.5,
-                                            borderRadius: 2,
-                                        }}
-                                    >
-                                        <Typography variant="body2">{ingredient.name}</Typography>
-                                    </Box>
-                                ))}
                             </Box>
+                        )}
+                        {Object.entries(groupedIngredients).map(([category, ingredients]) => (
+                            <Accordion key={category}
+                                       sx={{
+                                           width: "100%",
+                                           mb: 1,
+                                           backgroundColor: theme.palette.primary.lighter,
+                                           borderRadius: 1,
+                                       }}>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                                    <Typography variant="h6" color={categoryColors [category]}>{category}</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Box sx={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: 1,
+
+
+                                    }}>
+                                        {ingredients.map((ingredient) => (
+                                            <Chip key={ingredient._id} label={ingredient.name} variant="outlined"
+                                                  sx={{backgroundColor: theme.palette.background.paper}}/>
+                                        ))}
+                                    </Box>
+                                </AccordionDetails>
+                            </Accordion>
                         ))}
                     </Box>
 
@@ -103,17 +112,17 @@ const MyFridge = ({
                 </>
             ) : (
                 <>
-                    <Box sx={{textAlign: "center", mt: 2, mb: 1}}>
-                        <Typography variant="body1" sx={{color:"text.secondary"}}>
-                            Choose the ingredients you have
+                    <Box sx={{textAlign: "center", mb: 1}}>
+                        <Typography variant="body1" sx={{color: "text.secondary"}}>
+                            Search and add ingredients to your fridge.
                         </Typography>
                     </Box>
                     <IngredientsList
                         ingredients={ingredients}
-                        selectedIngredients={fridgeIngredients}
-                        handleToggleIngredient={handleToggleIngredient}
+                        selectedIngredients={selectedIngredientsEditing}
+                        setSelectedIngredients={setSelectedIngredientsEditing}
                     />
-                    {selectedIngredients.length === 0 && (
+                    {selectedIngredientsEditing.length === 0 && (
                         <Box sx={{textAlign: "center", mt: 2}}>
                             <Typography color="error" variant="body1">
                                 At the moment your fridge is empty!🍅

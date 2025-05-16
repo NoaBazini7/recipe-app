@@ -9,6 +9,7 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -26,13 +27,20 @@ const Register = () => {
             });
 
             if (response.data.success) {
-                navigate("/profile");
+                setErrorMessage("");
+                setSuccessMessage("Registration successful! Redirecting to login...");
+
+                setTimeout(() => {
+                    navigate("/login");
+                }, 2000); // delay in milliseconds
+
+
             } else {
                 setErrorMessage(response.data.message || "Registration failed. Please try again.");
             }
         } catch (error) {
             console.error("Error during registration:", error);
-            setErrorMessage("Registration failed. Please try again.");
+            setErrorMessage(error.response?.data?.message || "An error occurred. Please try again.");
         }
     };
 
@@ -66,6 +74,12 @@ const Register = () => {
                     Register
                 </Typography>
 
+                {successMessage && (
+                    <Alert severity="success" sx={{mb: 2}}>
+                        {successMessage}
+                    </Alert>
+                )}
+                
                 {errorMessage && (
                     <Alert severity="error" sx={{mb: 2}}>
                         {errorMessage}
