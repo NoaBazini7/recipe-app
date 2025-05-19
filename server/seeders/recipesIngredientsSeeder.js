@@ -134,7 +134,7 @@ async function seedRecipes() {
                 // Exclude false positives for gluten-free recipes
                 const isGlutenFalsePositive =
                     allergy === "gluten" &&
-                    recipe.name.toLowerCase().includes("gluten free");
+                    fullIngredient.name.toLowerCase().includes("gluten free");
 
                 if ((nameMatch || categoryMatch) && !isGlutenFalsePositive) {
                     foundAllergies.add(allergy);
