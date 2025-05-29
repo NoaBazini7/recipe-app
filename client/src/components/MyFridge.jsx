@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Typography} from "@mui/material";
-import {IngredientsList} from "./IngredientsList.jsx";
+import IngredientsList from "./IngredientsList.jsx";
 import axios from "axios";
 import {useUser} from "../contexts/UserContext.jsx";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";

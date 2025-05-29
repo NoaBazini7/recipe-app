@@ -120,6 +120,16 @@ const updateFridgeIngredients = async (username, ingredients) => {
     return user;
 };
 
+const deleteRecipeList = async (username, listName) => {
+    const user = await User.findOne({username});
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    user.recipeLists = user.recipeLists.filter(list => list.title !== listName);
+    await user.save();
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -132,4 +142,5 @@ module.exports = {
     addRecipeToList,
     removeRecipeFromList,
     updateFridgeIngredients,
+    deleteRecipeList,
 };

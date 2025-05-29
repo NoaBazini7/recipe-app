@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import {Box, Button,Card, CardContent, CardMedia, Grid, IconButton, Stack, Typography,} from "@mui/material";
+import React, {useEffect, useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {Box, Button, Card, CardContent, CardMedia, Grid, IconButton, Stack, Typography,} from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import FilterPanel from "../components/FilterPanel.jsx";
 import "../App.css";
@@ -10,13 +10,14 @@ const RecipesPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const recipesFromState = location.state?.recipes || [];
+    const selectedIngredients = location.state?.selectedIngredients || [];
 
     const [recipes] = useState(recipesFromState);
     const [filteredRecipes, setFilteredRecipes] = useState(recipesFromState);
 
     const [categoryFilter, setCategoryFilter] = useState("");
-    const [kosherFilter, setKosherFilter] = useState(""); // "kosher", "not_kosher", ""
-    const [timeFilter, setTimeFilter] = useState(""); // in minutes
+    const [kosherFilter, setKosherFilter] = useState("");
+    const [timeFilter, setTimeFilter] = useState("");
 
     const [categories, setCategories] = useState([]);
 
@@ -27,9 +28,7 @@ const RecipesPage = () => {
     useEffect(() => {
         const uniqueCategories = [
             ...new Set(
-                recipes
-                    .map((r) => r.category?.trim())
-                    .filter((c) => c && c.length > 0)
+                recipes.map((r) => r.category?.trim()).filter((c) => c && c.length > 0)
             ),
         ];
         setCategories(uniqueCategories);
@@ -50,7 +49,6 @@ const RecipesPage = () => {
         } else if (kosherFilter === "not_kosher") {
             filtered = filtered.filter((r) => r.kosher === false);
         }
-
 
         if (timeFilter) {
             const maxTime = Number(timeFilter);
@@ -75,7 +73,8 @@ const RecipesPage = () => {
     }, [categoryFilter, kosherFilter, timeFilter, recipes]);
 
     return (
-        <Box sx={{ px: 4, pt: 10, pb: 6 }}>
+        <Box sx={{px: 4, pt: 10, pb: 6}}>
+            {/* Top bar */}
             <Box
                 sx={{
                     position: "fixed",
@@ -96,24 +95,55 @@ const RecipesPage = () => {
                     </Typography>
                     <Box>
                         <IconButton onClick={() => navigate("/profile")}>
-                            <HomeIcon sx={{ fontSize: 30, color: "text.secondary" }} />
+                            <HomeIcon sx={{fontSize: 30, color: "text.secondary"}}/>
                         </IconButton>
                     </Box>
                 </Stack>
             </Box>
 
-            <Stack direction="row" spacing={5} mt={6} ml={1}>
-                <FilterPanel
-                    categoryFilter={categoryFilter}
-                    setCategoryFilter={setCategoryFilter}
-                    kosherFilter={kosherFilter}
-                    setKosherFilter={setKosherFilter}
-                    timeFilter={timeFilter}
-                    setTimeFilter={setTimeFilter}
-                    categories={categories}
-                />
+            {/* Main layout */}
+            <Box
+                sx={{
+                    display: "flex",
+                    mt: 6,
+                    ml: 1,
+                    flexDirection: {xs: "column", md: "row"},
+                    alignItems: "flex-start",
+                }}
+            >
+                {/* Fixed/Responsive Filter Panel */}
+                <Box
+                    sx={{
+                        position: {xs: "relative", md: "fixed"},
+                        top: 80,
+                        left: 0,
+                        width: {xs: "100%", md: 260},
+                        zIndex: 5,
+                        px: {xs: 0, md: 2},
+                        pb: 4,
+                        borderRight: {md: "1px solid"},
+                        borderColor: {md: "divider"},
+                    }}
+                >
+                    <FilterPanel
+                        categoryFilter={categoryFilter}
+                        setCategoryFilter={setCategoryFilter}
+                        kosherFilter={kosherFilter}
+                        setKosherFilter={setKosherFilter}
+                        timeFilter={timeFilter}
+                        setTimeFilter={setTimeFilter}
+                        categories={categories}
+                    />
+                </Box>
 
-                <Box flexGrow={1}>
+                {/* Recipes list */}
+                <Box
+                    sx={{
+                        flexGrow: 1,
+                        ml: {md: "280px"},
+                        width: "100%",
+                    }}
+                >
                     {filteredRecipes.length === 0 ? (
                         <Box>
                             <Typography
@@ -127,12 +157,11 @@ const RecipesPage = () => {
                             <Typography
                                 variant="h6"
                                 textAlign="center"
-                                flex={1}
                                 color={theme.palette.primary.main}
                                 sx={{
                                     cursor: "pointer",
                                     textDecoration: "underline",
-                                    "&:hover": { color: theme.palette.text.secondary },
+                                    "&:hover": {color: theme.palette.text.secondary},
                                 }}
                                 onClick={() => navigate("/profile")}
                             >
@@ -148,7 +177,7 @@ const RecipesPage = () => {
                                             borderRadius: 2,
                                             boxShadow: 8,
                                             transition: "0.3s",
-                                            ":hover": { boxShadow: 20 },
+                                            ":hover": {boxShadow: 20},
                                             display: "flex",
                                             flexDirection: "column",
                                             height: "100%",
@@ -163,10 +192,10 @@ const RecipesPage = () => {
                                                     recipe.imageUrl ||
                                                     "https://placehold.co/300x160?text=No+Image"
                                                 }
-                                                sx={{ objectFit: "cover" }}
+                                                sx={{objectFit: "cover"}}
                                             />
                                         )}
-                                        <CardContent sx={{ flexGrow: 1 }}>
+                                        <CardContent sx={{flexGrow: 1}}>
                                             <Typography variant="h6" gutterBottom>
                                                 {recipe.title}
                                             </Typography>
@@ -189,7 +218,7 @@ const RecipesPage = () => {
                                                     fullWidth
                                                     onClick={() =>
                                                         navigate(`/recipe/${recipe._id}`, {
-                                                            state: { recipes },
+                                                            state: {recipes, selectedIngredients},
                                                         })
                                                     }
                                                 >
@@ -203,11 +232,9 @@ const RecipesPage = () => {
                         </Grid>
                     )}
                 </Box>
-            </Stack>
+            </Box>
         </Box>
     );
 };
 
 export default RecipesPage;
-
-

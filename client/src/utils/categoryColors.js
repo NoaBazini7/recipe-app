@@ -1,5 +1,5 @@
 const categoryColors = {
-    "Fruits & Vegetables": "#58A65C",       // Fresh green
+    "Vegetables & Fruits": "#58A65C",       // Fresh green
     "Breads, Grains & Cereal": "#D9A75F",   // Warm wheat/golden brown
     "Meat, Poultry & Pork": "#C1443E",      // Deep red (meaty tone)
     "Seafood": "#3C91E6",                   // Ocean blue
@@ -8,6 +8,7 @@ const categoryColors = {
     "Pantry Staples (Spices, Oils, Sauces & Condiments)": "#E68A2E", // Orange spice
     "Sweets & Snacks": "#E05594",           // Candy pink
     "Beverages (Non-Fruit)": "#8caab5",              // Light blue
+    "Ready-Made & Packaged Meals": "#67443f",              // Light blue
 };
 
 export default categoryColors;

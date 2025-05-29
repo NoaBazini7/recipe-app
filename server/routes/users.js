@@ -18,6 +18,8 @@ router.post("/add-recipe", userController.addRecipeToList);
 
 router.post("/remove-recipe", userController.removeRecipeFromList);
 
+router.post("/delete-list", userController.deleteList);
+
 router.get("/saved-recipes", userController.fetchSavedRecipes);
 
 router.put("/fridgeUpdate", userController.updateFridgeIngredients);

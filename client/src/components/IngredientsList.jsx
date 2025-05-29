@@ -1,18 +1,17 @@
-import {Box, Chip, FormControlLabel, Switch, TextField, Typography} from "@mui/material";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {FixedSizeGrid as Grid} from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
-import AlphabetSidebar from "./AlphabetSidebar.jsx";
+import {Box, Chip, Collapse, FormControlLabel, IconButton, Switch, TextField, Typography} from "@mui/material";
+import {useEffect, useMemo, useState} from "react";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import categoryColors from "../utils/categoryColors.js";
 
-const COLUMN_COUNT = 4;
 const ITEM_WIDTH = 200;
 const CHIP_HEIGHT = 64;
 
-export function IngredientsList({ingredients, selectedIngredients, setSelectedIngredients}) {
+const IngredientsList = ({ingredients, selectedIngredients, setSelectedIngredients}) => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredIngredients, setFilteredIngredients] = useState([]);
-    const [showExtended, setShowExtended] = useState(false); // Add state for the switch
-    const gridRef = useRef();
+    const [showExtended, setShowExtended] = useState(false);
+    const [collapsedCategories, setCollapsedCategories] = useState({});
 
     useEffect(() => {
         const filtered = ingredients.filter((ingredient) =>
@@ -20,9 +19,26 @@ export function IngredientsList({ingredients, selectedIngredients, setSelectedIn
         );
         const finalFiltered = showExtended
             ? filtered
-            : filtered.filter((ingredient) => ingredient.isCommon); // Filter based on showExtended
+            : filtered.filter((ingredient) => ingredient.isCommon);
         setFilteredIngredients(finalFiltered);
     }, [ingredients, searchTerm, showExtended]);
+
+    const groupedIngredients = useMemo(() => {
+        const groups = {};
+        for (const ingredient of filteredIngredients) {
+            const cat = ingredient.category || "Uncategorized";
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push(ingredient);
+        }
+        return groups;
+    }, [filteredIngredients]);
+
+    const toggleCategory = (category) => {
+        setCollapsedCategories((prev) => ({
+            ...prev,
+            [category]: !prev[category],
+        }));
+    };
 
     const handleChipClick = (ingredient) => {
         setSelectedIngredients((prev) =>
@@ -31,30 +47,6 @@ export function IngredientsList({ingredients, selectedIngredients, setSelectedIn
                 : [...prev, ingredient._id]
         );
     };
-
-    const itemData = useMemo(() => {
-        const sorted = [...filteredIngredients].sort((a, b) => a.name.localeCompare(b.name));
-        const rows = Math.ceil(sorted.length / COLUMN_COUNT);
-        return Array.from({length: rows}, (_, rowIndex) =>
-            sorted.slice(
-                rowIndex * COLUMN_COUNT,
-                rowIndex * COLUMN_COUNT + COLUMN_COUNT
-            )
-        );
-    }, [filteredIngredients]);
-
-    const handleLetterClick = useCallback((letter) => {
-        const index = filteredIngredients.findIndex((ing) =>
-            ing.name.toUpperCase().startsWith(letter)
-        );
-        if (index !== -1) {
-            const rowIndex = Math.floor(index / COLUMN_COUNT);
-            gridRef.current?.scrollToItem({
-                rowIndex,
-                align: "start",
-            });
-        }
-    }, [filteredIngredients]);
 
     return (
         <Box sx={{
@@ -68,6 +60,7 @@ export function IngredientsList({ingredients, selectedIngredients, setSelectedIn
             padding: 2,
             boxShadow: 2,
             backgroundColor: "background.paper",
+
         }}>
             <TextField
                 variant="outlined"
@@ -95,75 +88,76 @@ export function IngredientsList({ingredients, selectedIngredients, setSelectedIn
                 />
             </Box>
 
-            <Box sx={{flex: 1, minHeight: 0, display: "flex"}}>
-                <AutoSizer>
-                    {({height, width}) => (
-                        <Box sx={{display: "flex", width, height}}>
-                            <AlphabetSidebar onLetterClick={handleLetterClick}/>
-                            <Grid
-                                ref={gridRef}
-                                columnCount={COLUMN_COUNT}
-                                columnWidth={ITEM_WIDTH}
-                                height={height}
-                                rowCount={itemData.length}
-                                rowHeight={CHIP_HEIGHT + 16}
-                                width={width - 60}
-                            >
-                                {({columnIndex, rowIndex, style}) => {
-                                    const row = itemData[rowIndex];
-                                    const ingredient = row?.[columnIndex];
-                                    if (!ingredient) return null;
+            <Box sx={{
+                flex: 1,
+                overflowY: "auto",
+                pr: 1,
+                "&::-webkit-scrollbar": {
+                    width: 6,
 
-                                    const isSelected = selectedIngredients.includes(ingredient._id);
-
-                                    return (
-                                        <Box
-                                            sx={{
-                                                ...style,
-                                                display: "flex",
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                padding: 2,
-                                            }}
-                                        >
-                                            <Chip
-                                                label={
-                                                    <Box
-                                                        sx={{
-                                                            textAlign: "center",
-                                                            whiteSpace: "normal",
-                                                            wordWrap: "break-word",
-                                                        }}
-                                                    >
-                                                        {ingredient.name}
-                                                    </Box>
-                                                }
-                                                variant="outlined"
-                                                onClick={() => handleChipClick(ingredient)}
-                                                sx={{
-                                                    width: ITEM_WIDTH,
-                                                    height: CHIP_HEIGHT,
-                                                    backgroundColor: isSelected ? "text.primary" : "primary.main",
-                                                    color: isSelected ? "background.paper" : "text.primary",
-                                                    fontWeight: isSelected ? "bold" : "normal",
-                                                    borderRadius: 3,
-                                                    borderWidth: "1.5px ",
-                                                    borderColor: isSelected ? "primary.main" : "text.primary",
-                                                    px: 2,
-                                                    cursor: "pointer",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                }}
-                                            />
-                                        </Box>
-                                    );
-                                }}
-                            </Grid>
+                },
+                "&::-webkit-scrollbar-track": {
+                    backgroundColor: "background.paper",
+                    borderRadius: 3,
+                },
+                "&::-webkit-scrollbar-thumb": {
+                    backgroundColor: "text.primary",
+                    borderRadius: 9,
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                    backgroundColor: "text.secondary",
+                },
+                "&::-webkit-scrollbar-button": {
+                    display: "none",
+                    height: 0,
+                    width: 0,
+                },
+            }}>
+                {Object.entries(groupedIngredients).map(([category, ingredients]) => (
+                    <Box key={category} sx={{mb: 2}}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                backgroundColor: "primary.light",
+                                padding: 1,
+                                borderRadius: 1,
+                            }}
+                            onClick={() => toggleCategory(category)}
+                        >
+                            <Typography variant="h6" color={categoryColors[category]}>{category}</Typography>
+                            <IconButton size="small">
+                                {collapsedCategories[category] ? <ExpandMoreIcon/> : <ExpandLessIcon/>}
+                            </IconButton>
                         </Box>
-                    )}
-                </AutoSizer>
+                        <Collapse in={!collapsedCategories[category]}>
+                            <Box sx={{display: "flex", flexWrap: "wrap", gap: 1, mt: 1}}>
+                                {ingredients.map((ingredient) => {
+                                    const isSelected = selectedIngredients.includes(ingredient._id);
+                                    return (
+                                        <Chip
+                                            key={ingredient._id}
+                                            label={ingredient.name}
+                                            onClick={() => handleChipClick(ingredient)}
+                                            sx={{
+                                                backgroundColor: isSelected ? "text.primary" : "primary.main",
+                                                color: isSelected ? "background.paper" : "text.primary",
+                                                fontWeight: isSelected ? "bold" : "normal",
+                                                borderRadius: 3,
+                                                cursor: "pointer",
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </Box>
+                        </Collapse>
+                    </Box>
+                ))}
             </Box>
         </Box>
     );
-}
+};
+
+export default IngredientsList;

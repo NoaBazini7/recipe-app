@@ -12,11 +12,12 @@ import {
     Typography
 } from "@mui/material";
 import MyFridge from "./MyFridge.jsx";
-import {IngredientsList} from "./IngredientsList.jsx";
+import IngredientsList from "./IngredientsList.jsx";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import theme from "../theme/theme.js";
 import {useUser} from "../contexts/UserContext.jsx";
+
 
 const Wizard = ({
                     ingredients,
@@ -52,7 +53,7 @@ const Wizard = ({
                     userAllergies,
                 }
             );
-            navigate("/recipes", {state: {recipes: response.data}});
+            navigate("/recipes", {state: {recipes: response.data, selectedIngredients: selectedIngredients}});
         } catch (error) {
             console.error("Error fetching filtered recipes:", error);
         }
@@ -309,11 +310,15 @@ const Wizard = ({
                             </ToggleButtonGroup>
                         </Box>
 
+                        <Divider sx={{my: 2, p: 2}}/>
                         {/* Allergies */}
-                        <Typography variant="h6" sx={{mt: 4, mb: 2}} align="center" fontWeight="bold">
+                        <Typography variant="h6" sx={{mt: 4}} align="center" fontWeight="bold">
                             Do you have any allergies? 🚨
                         </Typography>
-                        <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={1} mb={2}>
+                        <Typography variant="caption" sx={{mb: 2}} align="center">
+                            We will avoid recipes that contain any of these ingredients.
+                        </Typography>
+                        <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={1} mb={4} mt={2}>
                             {allergiesList.map((allergy) => {
                                 const selected = userAllergies.includes(allergy);
                                 return (

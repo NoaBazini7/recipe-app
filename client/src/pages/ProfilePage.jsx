@@ -26,7 +26,6 @@ const ProfilePage = () => {
         {key: "myFridge", label: "🧊 My Fridge"},
         {key: "editProfile", label: "✏️ Edit Profile"},
         {key: "recipes", label: "📖 My Lists"},
-        {key: "settings", label: "⚙️ Settings"}
     ];
 
 
@@ -125,8 +124,6 @@ const ProfilePage = () => {
                     </Box>
                 );
 
-            case "settings":
-                return <Box sx={{p: 2}}>⚙️ Settings</Box>;
             default:
                 return null;
         }
@@ -185,15 +182,17 @@ const ProfilePage = () => {
                         {item.label}
                     </Button>
                 ))}
+                <Box sx={{flexDirection: "row", display: "flex", justifyContent: "center", alignItems: "center"}}>
+                    <IconButton onClick={() => {
+                        logout();
+                        navigate("/");
+                    }}>
+                        <Typography variant="body1" color="text.primary"> Logout</Typography>
+                        <LogoutIcon sx={{color: "text.primary", margin: "0 5px"}}/>
+                    </IconButton>
+                </Box>
             </Box>
 
-            <IconButton onClick={() => {
-                logout();
-                navigate("/");
-            }}
-                        sx={{position: "absolute", top: 20, right: 20}}>
-                <LogoutIcon sx={{fontSize: 40, marginTop: "25px", color: "text.primary"}}/>
-            </IconButton>
 
             {/* Main Content with Animation */}
             <Box sx={{flex: 1, pt: 5, alignItems: "center"}}>

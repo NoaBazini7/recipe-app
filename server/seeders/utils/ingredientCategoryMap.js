@@ -20,6 +20,9 @@ const categoryMap = new Map([
     ["Other starchy vegetables", "Fruits & Vegetables"],
     ["Cabbage", "Fruits & Vegetables"],
     ["Legumes and Legume Products", "Fruits & Vegetables"],
+    ["Vegetables and Vegetable Products", "Fruits & Vegetables"],
+    ["Canned Fruit", "Fruits & Vegetables"],
+    ["Fruit & Vegetable Juice, Nectars & Fruit Drinks", "Fruits & Vegetables"],
 
 
     // 🍞 Breads, Grains & Cereal
@@ -73,13 +76,15 @@ const categoryMap = new Map([
     ["Meat mixed dishes", "Meat, Poultry & Pork"],
     ["Stuffing", "Meat, Poultry & Pork"],
     ["Other Meats", "Meat, Poultry & Pork"],
-
+    ["Other Deli", "Meat, Poultry & Pork"],
+    ["Meat/Poultry/Other Animals - Prepared/Processed", "Meat, Poultry & Pork"],
 
     //🐟 Seafood
     ["Fish", "Seafood"],
     ["Canned Seafood", "Seafood"],
     ["Finfish and Shellfish Products", "Seafood"],
     ["Frozen Fish & Seafood", "Seafood"],
+    ["Fish & Seafood", "Seafood"],
 
 
     // 🧀 Dairy & Eggs
@@ -138,6 +143,10 @@ const categoryMap = new Map([
     ["Nut and Seed Products", "Pantry Staples (Spices, Oils, Sauces & Condiments)"],
     ["Sugar substitutes", "Pantry Staples (Spices, Oils, Sauces & Condiments)"],
     ["Not included in a food category", "Pantry Staples (Spices, Oils, Sauces & Condiments)"],
+    ["Nuts and seeds", "Pantry Staples (Spices, Oils, Sauces & Condiments)"],
+    ["Frozen Dinners & Entrees", "Pantry Staples (Spices, Oils, Sauces & Condiments)"],
+    ["Frozen Prepared Sides", "Pantry Staples (Spices, Oils, Sauces & Condiments)"],
+
 
     // 🍬 Sweets & Snacks
     ["Chocolate", "Sweets & Snacks"],
@@ -160,6 +169,7 @@ const categoryMap = new Map([
     ["Doughnuts, sweet rolls, pastries", "Sweets & Snacks"],
     ["Puddings & Custards", "Sweets & Snacks"],
     ["Croissants, Sweet Rolls, Muffins & Other Pastries", "Sweets & Snacks"],
+    ["Cakes, Cupcakes, Snack Cakes", "Sweets & Snacks"],
 
 
     // 🥣 Ready-Made & Packaged Meals
@@ -174,7 +184,7 @@ const categoryMap = new Map([
     ["Cake, Cookie & Cupcake Mixes", "Ready-Made & Packaged Meals"],
     ["Fast Foods", "Ready-Made & Packaged Meals"],
     ["Other Cooking Sauces", "Ready-Made & Packaged Meals"],
-    ["Other Deli", "Ready-Made & Packaged Meals"],
+    ["Restaurant Foods", "Ready-Made & Packaged Meals"],
 
 
     // 🍷 Beverages
@@ -185,7 +195,7 @@ const categoryMap = new Map([
     ["Liquor and cocktails", "Beverages (Non-Fruit)"],
     ["Beer", "Beverages (Non-Fruit)"],
     ["Wine", "Beverages (Non-Fruit)"],
-    ["Fruit & Vegetable Juice, Nectars & Fruit Drinks", "Beverages (Non-Fruit)"],
+
 ]);
 
 module.exports = categoryMap;

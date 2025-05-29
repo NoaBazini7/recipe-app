@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {Box, Button, Card, CardContent, List, ListItem, Popover, Typography} from "@mui/material";
+import {Box, Button, Card, CardContent, Chip, List, ListItem, Popover, Typography} from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import axios from "axios";
 import {useUser} from "../contexts/UserContext.jsx";
@@ -15,8 +15,10 @@ const RecipeDetailPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const recipes = location.state?.recipes || [];
+    const ownedIngredients = location.state?.selectedIngredients || [];
     const recipe = recipes.find((r) => r._id === id);
     const {user, updateUser} = useUser();
+    const [listSaved, setListSaved] = useState(location.state?.savedList || null);
     const [showSaveMenu, setShowSaveMenu] = useState(false);
     const [newListName, setNewListName] = useState("");
     const [saved, setSaved] = useState(false);
@@ -45,6 +47,11 @@ const RecipeDetailPage = () => {
         setShowSaveMenu(prev => !prev);
     };
 
+    useEffect(() => {
+        if (listSaved) {
+            saveToList();
+        }
+    }, [listSaved]);
 
     useEffect(() => {
         const fetchRecipeIngredients = async () => {
@@ -75,22 +82,39 @@ const RecipeDetailPage = () => {
     }, [recipe]);
 
 
-    const saveToList = async (listName) => {
+    const unsaveRecipe = async () => {
+        try {
+            const response = await axios.post("http://localhost:5000/api/users/remove-recipe", {
+                username: user.username,
+                recipeID: recipe._id,
+                listName: listSaved,
+            });
+            console.log("Recipe unsaved:", response.data);
+
+            // Update user context
+            updateUser({...user, recipeLists: response.data.recipeLists});
+            setSaved(false);
+        } catch (error) {
+            console.error("Error unsaving recipe:", error);
+        }
+    };
+
+    const saveToList = async () => {
         try {
             await axios.post("http://localhost:5000/api/users/add-recipe", {
                 username: user.username,
                 recipeID: recipe._id,
-                listName,
+                listName: listSaved,
             });
-            console.log("Recipe saved to", listName);
+            console.log("Recipe saved to", listSaved);
             setSaved(true);
             setShowSaveMenu(false);
 
             const updatedLists = [...user.recipeLists];
-            if (!updatedLists.find(list => list.title === listName)) {
-                updatedLists.push({title: listName, recipes: [recipe._id]});
+            if (!updatedLists.find(list => list.title === listSaved)) {
+                updatedLists.push({title: listSaved, recipes: [recipe._id]});
             } else {
-                const targetList = updatedLists.find(list => list.title === listName);
+                const targetList = updatedLists.find(list => list.title === listSaved);
                 if (!targetList.recipes.includes(recipe._id)) {
                     targetList.recipes.push(recipe._id);
                 }
@@ -102,6 +126,11 @@ const RecipeDetailPage = () => {
         }
     };
 
+    const hasInFridge = (index) => {
+        // console.log("ownedIngredients", ownedIngredients);
+        // console.log("recipe.matchedIngredients[index]._id", recipe.matchedIngredients[index]._id);
+        return ownedIngredients.some(itemId => itemId === recipe.matchedIngredients[index]._id);
+    }
 
     if (!recipe) {
         return (
@@ -168,10 +197,9 @@ const RecipeDetailPage = () => {
                                         justifyContent: 'center'
                                     }}>
                             <IconButton
-                                onClick={toggleSaveMenu}
+                                onClick={saved ? unsaveRecipe : toggleSaveMenu}
                                 sx={{p: 0, mr: 1}}
                                 aria-label={saved ? "Unsave Recipe" : "Save Recipe"}
-                                disabled={saved}
                             >
                                 {saved ? (
                                     <FavoriteIcon sx={{color: 'red'}}/>
@@ -194,7 +222,11 @@ const RecipeDetailPage = () => {
                                 <List dense>
                                     {user?.recipeLists?.map((list, i) => (
                                         <ListItem key={i} button disabled={saved}
-                                                  onClick={() => saveToList(list.title)}>
+                                                  onClick={() => {
+                                                      setListSaved(list.title);
+                                                  }
+                                                  }
+                                        >
                                             <Typography>{list.title}</Typography>
                                         </ListItem>
                                     ))}
@@ -212,7 +244,10 @@ const RecipeDetailPage = () => {
                                     <Button
                                         variant="contained"
                                         size="small"
-                                        onClick={() => saveToList(newListName)}
+                                        onClick={() => {
+                                            setListSaved(newListName);
+
+                                        }}
                                         sx={{mt: 1, width: "100%"}}
                                         disabled={saved || !newListName.trim()}
                                     >
@@ -257,9 +292,28 @@ const RecipeDetailPage = () => {
                                                     cursor: "pointer",
                                                 }}
                                             >
-                                                <Typography variant="body2" sx={{fontSize: "0.875rem"}}>
-                                                    • {ingredient}
+                                                <Chip
+                                                    label={hasInFridge(index) ? "In Fridge" : "Missing"}
+                                                    color={hasInFridge(index) ? "success" : "error"}
+                                                    size="small"
+                                                    variant="outlined"
+                                                    sx={{mr: 2}}
+
+                                                />
+
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        fontSize: "0.875rem",
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 1,
+                                                    }}
+                                                >
+                                                    {ingredient}
                                                 </Typography>
+
+
                                             </ListItem>
                                         ))}
                                     </List>

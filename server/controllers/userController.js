@@ -91,7 +91,7 @@ const fetchSavedRecipes = async (req, res) => {
 
 const updateFridgeIngredients = async (req, res) => {
     const {username, fridgeIngredients} = req.body;
-    
+
 
     try {
         const updatedUser = await userService.updateFridgeIngredients(username, fridgeIngredients);
@@ -100,6 +100,20 @@ const updateFridgeIngredients = async (req, res) => {
         res.status(400).json({error: err.message});
     }
 };
+
+
+const deleteList = async (req, res) => {
+    const {username, listName} = req.body;
+
+    try {
+        await userService.deleteRecipeList(username, listName);
+        res.status(200).json({message: "List deleted successfully"});
+    } catch (error) {
+        console.error("Error in deleteList controller:", error);
+        res.status(500).json({error: "Failed to delete recipe list"});
+    }
+};
+
 
 module.exports = {
     getAllUsers,
@@ -112,4 +126,5 @@ module.exports = {
     removeRecipeFromList,
     fetchSavedRecipes,
     updateFridgeIngredients,
+    deleteList,
 };
